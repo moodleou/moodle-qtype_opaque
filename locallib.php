@@ -340,10 +340,11 @@ function qtype_opaque_get_question_metadata($engine, $remoteid, $remoteversion) 
  * @param string $remoteid
  * @param string $remoteversion
  * @param int $randomseed
+ * @param question_display_options|null $options
  * @return mixed the result of the soap call on success, or a string error message on failure.
  */
 function qtype_opaque_start_question_session($engine, $remoteid, $remoteversion,
-        $data, $cached_resources) {
+        $data, $cached_resources, question_display_options $options = null) {
     $connection = qtype_opaque_connect($engine);
 
     $questionbaseurl = '';
@@ -358,6 +359,15 @@ function qtype_opaque_start_question_session($engine, $remoteid, $remoteversion,
         'passKey' => qtype_opaque_generate_passkey($engine->passkey, $data['-_userid']),
         'preferredbehaviour' => $data['-_preferredbehaviour'],
     );
+
+    if (!is_null($options)) {
+        $initialparams['display_readonly'] = (int) $options->readonly;
+        $initialparams['display_marks'] = (int) $options->marks;
+        $initialparams['display_markdp'] = (int) $options->markdp;
+        $initialparams['display_correctness'] = (int) $options->correctness;
+        $initialparams['display_feedback'] = (int) $options->feedback;
+        $initialparams['display_generalfeedback'] = (int) $options->generalfeedback;
+    }
 
     return $connection->start($remoteid, $remoteversion, $questionbaseurl,
             array_keys($initialparams), array_values($initialparams), $cached_resources);
@@ -417,12 +427,15 @@ function qtype_opaque_get_submitted_data(question_attempt_step $step) {
 /**
  * Update the $SESSION->cached_opaque_state to show the current status of $question for state
  * $state.
- * @param object $question the question
- * @param object $state
+ * @param question_attempt $qa the question attempt
+ * @param question_attempt_step $pendingstep (opitional) if we are in the process of
+ *      adding a new step to the end of the question_attempt, this is it.
+ * @param question_display_options $options (optional) display options to pass on
+ *      to the question engine
  * @return mixed $SESSION->cached_opaque_state on success, a string error message on failure.
  */
 function qtype_opaque_update_state(question_attempt $qa,
-        question_attempt_step $pendingstep = null) {
+        question_attempt_step $pendingstep = null, question_display_options $options = null) {
     global $SESSION;
 
     $question = $qa->get_question();
@@ -431,12 +444,26 @@ function qtype_opaque_update_state(question_attempt $qa,
         $targetseq += 1;
     }
 
+    if (!is_null($options)) {
+        $optionstring = implode('|', array(
+            (int) $options->readonly,
+            (int) $options->marks,
+            (int) $options->markdp,
+            (int) $options->correctness,
+            (int) $options->feedback,
+            (int) $options->generalfeedback,
+        ));
+    } else {
+        $optionstring = '';
+    }
+
     if (empty($SESSION->cached_opaque_state) ||
             empty($SESSION->cached_opaque_state->qaid) ||
             empty($SESSION->cached_opaque_state->sequencenumber)) {
         $cachestatus = 'empty';
     } else if ($SESSION->cached_opaque_state->qaid != $qa->get_database_id() ||
-            $SESSION->cached_opaque_state->sequencenumber > $targetseq) {
+            $SESSION->cached_opaque_state->sequencenumber > $targetseq ||
+            $SESSION->cached_opaque_state->optionstring != $optionstring) {
         if (!empty($SESSION->cached_opaque_state->questionsessionid)) {
             $error = qtype_opaque_stop_question_session($SESSION->cached_opaque_state->engine,
                     $SESSION->cached_opaque_state->questionsessionid);
@@ -463,6 +490,7 @@ function qtype_opaque_update_state(question_attempt $qa,
         $opaquestate->remoteid = $question->remoteid;
         $opaquestate->remoteversion = $question->remoteversion;
         $opaquestate->engineid = $question->engineid;
+        $opaquestate->optionstring = $optionstring;
         $opaquestate->nameprefix = $qa->get_field_prefix();
         $opaquestate->questionended = false;
         $opaquestate->sequencenumber = -1;
@@ -478,7 +506,7 @@ function qtype_opaque_update_state(question_attempt $qa,
         $step = qtype_opaque_get_step(0, $qa, $pendingstep);
         $startreturn = qtype_opaque_start_question_session($engine, $question->remoteid,
                 $question->remoteversion, $step->get_all_data(),
-                $resourcecache->list_cached_resources());
+                $resourcecache->list_cached_resources(), $options);
         if (is_string($startreturn)) {
             unset($SESSION->cached_opaque_state);
             return $startreturn;
