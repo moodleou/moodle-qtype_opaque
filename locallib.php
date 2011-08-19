@@ -465,11 +465,12 @@ function qtype_opaque_update_state(question_attempt $qa,
             $SESSION->cached_opaque_state->sequencenumber > $targetseq ||
             $SESSION->cached_opaque_state->optionstring != $optionstring) {
         if (!empty($SESSION->cached_opaque_state->questionsessionid)) {
-            $error = qtype_opaque_stop_question_session($SESSION->cached_opaque_state->engine,
-                    $SESSION->cached_opaque_state->questionsessionid);
-            if (is_string($error)) {
+            try {
+                qtype_opaque_stop_question_session($SESSION->cached_opaque_state->engine,
+                        $SESSION->cached_opaque_state->questionsessionid);
+            } catch (SoapFault $e) {
                 unset($SESSION->cached_opaque_state);
-                return $error;
+                throw $e;
             }
         }
         unset($SESSION->cached_opaque_state);
