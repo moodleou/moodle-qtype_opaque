@@ -325,7 +325,11 @@ function qtype_opaque_get_engine_info($engine) {
  */
 function qtype_opaque_get_question_metadata($engine, $remoteid, $remoteversion) {
     $connection = qtype_opaque_connect($engine);
-    $questionbaseurl = $engine->questionbanks[array_rand($engine->questionbanks)];
+    if (!empty($engine->questionbanks)) {
+        $questionbaseurl = $engine->questionbanks[array_rand($engine->questionbanks)];
+    } else {
+        $questionbaseurl = '';
+    }
     $getmetadataresult = $connection->getQuestionMetadata(
             $remoteid, $remoteversion, $questionbaseurl);
     return xmlize($getmetadataresult);
