@@ -730,9 +730,7 @@ class qtype_opaque_resource_cache {
         if (!is_dir($this->metadatafolder)) {
             $this->mkdir_recursive($this->metadatafolder);
         }
-        $this->baseurl = new moodle_url('/question/type/opaque/file.php',
-                array('engineid' => $engineid, 'remoteid' => $remoteid,
-                      'remoteversion' => $remoteversion));
+        $this->baseurl = "/question/type/opaque/file.php/{$engineid}/{$remoteid}/{$remoteversion}/";
     }
 
     /**
@@ -756,7 +754,7 @@ class qtype_opaque_resource_cache {
      * @return the URL to access this file.
      */
     public function file_url($filename) {
-        return new moodle_url($this->baseurl, array('filename' => $filename));
+        return new moodle_url($this->baseurl . $filename);
     }
 
     /**
