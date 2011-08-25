@@ -470,13 +470,14 @@ function qtype_opaque_update_state(question_attempt $qa,
     } else if ($SESSION->cached_opaque_state->qaid != $qa->get_database_id() ||
             $SESSION->cached_opaque_state->sequencenumber > $targetseq ||
             $SESSION->cached_opaque_state->optionstring != $optionstring) {
+        // If there is some question session active, try to stop it ...
         if (!empty($SESSION->cached_opaque_state->questionsessionid)) {
             try {
                 qtype_opaque_stop_question_session($SESSION->cached_opaque_state->engine,
                         $SESSION->cached_opaque_state->questionsessionid);
             } catch (SoapFault $e) {
                 unset($SESSION->cached_opaque_state);
-                throw $e;
+                // ... but ignore any errors when doing so.
             }
         }
         unset($SESSION->cached_opaque_state);
