@@ -47,6 +47,8 @@ define('OPAQUE_ATTEMPTS_UNSET', -99);
 /** Prefix used for CSS files. */
 define('OPAQUE_CSS_FILENAME_PREFIX', '__styles_');
 
+define('OPAQUE_SOAP_TIMEOUT', 10);
+
 /**
  * @return an array id -> enginename, that can be used to build a dropdown
  * menu of installed question types.
@@ -296,8 +298,12 @@ function qtype_opaque_connect($engine) {
     } else {
         $url = $engine->questionengines[array_rand($engine->questionengines)];
     }
-    $connection = new SoapClient($url . '?wsdl',
-            array('soap_version'=>SOAP_1_1, 'exceptions'=>true));
+    ini_set('default_socket_timeout', OPAQUE_SOAP_TIMEOUT);
+    $connection = new SoapClient($url . '?wsdl', array(
+        'soap_version'       => SOAP_1_1,
+        'exceptions'         => true,
+        'connection_timeout' => OPAQUE_SOAP_TIMEOUT,
+    ));
     if (!is_string($engine)) {
         $engine->urlused = $url;
     }
