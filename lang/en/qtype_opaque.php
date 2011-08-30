@@ -77,10 +77,8 @@ $string['questionid'] = 'Question id';
 $string['questionid_help'] = 'Opaque questions are identified by both a question id and a question version number. The person who created the question you are trying to refer to will be able to tell you these.';
 $string['questionversion'] = 'Question version';
 $string['soapfault'] = 'Technical details:
-Fault code: {$a->faultcode}.
-Fault actor: {$a->faultactor}.
-Fault string: {$a->faultstring}.
-Fault detail: {$a->faultdetail}.';
+Fault code: {$a->faultcode}
+Fault string: {$a->faultstring}';
 $string['startcallfailed'] = 'Failed to start a question session. {$a}';
 $string['stopcallfailed'] = 'Failed to close question session. {$a}';
 $string['testconnection'] = 'Test connection';

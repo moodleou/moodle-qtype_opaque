@@ -7,6 +7,12 @@
     margin: 0;
 }
 
+.que .im-controls .opaqueerror {
+    color: #800;
+    padding: 7em 1em;
+    background: #eeeeee;
+}
+
 .que.opaque .question_aborted {
     padding: 7em 1em;
     text-align: center;
