@@ -37,6 +37,9 @@ defined('MOODLE_INTERNAL') || die();
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class qtype_opaque_resource_cache {
+    /** Prefix used for CSS files. */
+    const CSS_PREFIX = '__styles_';
+
     protected $folder; // Path to the folder where resources for this question are cached.
     protected $metadatafolder; // Path to the folder where mime types are stored.
     protected $baseurl; // initial part of the URL to link to a file in the cache.
@@ -84,6 +87,13 @@ class qtype_opaque_resource_cache {
      */
     public function file_url($filename) {
         return new moodle_url($this->baseurl . $filename);
+    }
+
+    /**
+     * File name used to store the CSS of the question, question session id is appended.
+     */
+    function stylesheet_filename($questionsessionid) {
+        return self::CSS_PREFIX . $questionsessionid . '.css';
     }
 
     /**
@@ -181,7 +191,7 @@ class qtype_opaque_resource_cache {
         $files = array();
         foreach ($filepaths as &$filepath) {
             $file = substr($filepath, $pathlen);
-            if (strpos($file, OPAQUE_CSS_FILENAME_PREFIX) !== 0) {
+            if (strpos($file, self::CSS_PREFIX) !== 0) {
                 $files[] = $file;
             }
         }

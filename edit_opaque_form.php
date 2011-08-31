@@ -92,7 +92,7 @@ class qtype_opaque_edit_form extends question_edit_form {
         // Try connecting to the remote question engine both as extra validation of the id, and
         // also to get the default grade.
         if ($remoteidok) {
-            $metadata = qtype_opaque_get_question_metadata($engine,
+            $metadata = qtype_opaque_connection::make($engine)->get,
                     $data['remoteid'], $data['remoteversion']);
             if (is_string($metadata)) {
                 $errors['remoteid'] = $metadata;

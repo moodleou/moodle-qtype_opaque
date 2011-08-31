@@ -45,8 +45,6 @@ define('OPAQUE_ATTEMPTS_WRONG', -1);
 define('OPAQUE_ATTEMPTS_PARTIALLYCORRECT', -2);
 /** If developer hasn't set the value. Should match the definition in om.question.Results. */
 define('OPAQUE_ATTEMPTS_UNSET', -99);
-/** Prefix used for CSS files. */
-define('OPAQUE_CSS_FILENAME_PREFIX', '__styles_');
 
 define('OPAQUE_SOAP_TIMEOUT', 10);
 
@@ -134,90 +132,7 @@ function qtype_opaque_connect($engine) {
     return $connection;
 }
 
-/**
- * @param mixed $engine either an $engine object, or the URL of a particular
- *      question engine server.
- * @return some XML, as parsed by xmlize, on success, or a string to look up in
- *      the qtype_opaque language file as an error message.
- */
-function qtype_opaque_get_engine_info($engine) {
-    $connection = qtype_opaque_connect($engine);
-    $getengineinforesult = $connection->getEngineInfo();
-    return xmlize($getengineinforesult);
-}
 
-/**
- * @param mixed $engine either an $engine object, or the URL of a particular
- *      question engine server.
- * @return The question metadata, as an xmlised array, so, for example,
- *      $metadata[questionmetadata][@][#][scoring][0][#][marks][0][#] is the
- *      maximum possible score for this question.
- */
-function qtype_opaque_get_question_metadata($engine, $remoteid, $remoteversion) {
-    $connection = qtype_opaque_connect($engine);
-    if (!empty($engine->questionbanks)) {
-        $questionbaseurl = $engine->questionbanks[array_rand($engine->questionbanks)];
-    } else {
-        $questionbaseurl = '';
-    }
-    $getmetadataresult = $connection->getQuestionMetadata(
-            $remoteid, $remoteversion, $questionbaseurl);
-    return xmlize($getmetadataresult);
-}
-
-/**
- * @param object $engine the engine to connect to.
- * @param string $remoteid
- * @param string $remoteversion
- * @param int $randomseed
- * @param question_display_options|null $options
- * @return mixed the result of the soap call on success, or a string error message on failure.
- */
-function qtype_opaque_start_question_session($engine, $remoteid, $remoteversion,
-        $data, $cached_resources, question_display_options $options = null) {
-    $connection = qtype_opaque_connect($engine);
-
-    $questionbaseurl = '';
-    if (!empty($engine->questionbanks)) {
-        $questionbaseurl = $engine->questionbanks[array_rand($engine->questionbanks)];
-    }
-
-    $initialparams = array(
-        'randomseed' => $data['-_randomseed'],
-        'userid' => $data['-_userid'],
-        'language' => $data['-_language'],
-        'passKey' => qtype_opaque_generate_passkey($engine->passkey, $data['-_userid']),
-        'preferredbehaviour' => $data['-_preferredbehaviour'],
-    );
-
-    if (!is_null($options)) {
-        $initialparams['display_readonly'] = (int) $options->readonly;
-        $initialparams['display_marks'] = (int) $options->marks;
-        $initialparams['display_markdp'] = (int) $options->markdp;
-        $initialparams['display_correctness'] = (int) $options->correctness;
-        $initialparams['display_feedback'] = (int) $options->feedback;
-        $initialparams['display_generalfeedback'] = (int) $options->generalfeedback;
-    }
-
-    return $connection->start($remoteid, $remoteversion, $questionbaseurl,
-            array_keys($initialparams), array_values($initialparams), $cached_resources);
-}
-
-function qtype_opaque_process($engine, $questionsessionid, $response) {
-    $connection = qtype_opaque_connect($engine);
-    return $connection->process($questionsessionid, array_keys($response),
-            array_values($response));
-}
-
-/**
- * @param string $questionsessionid the question session to stop.
- * @return true on success, or a string error message on failure.
- */
-function qtype_opaque_stop_question_session($engine, $questionsessionid) {
-    $connection = qtype_opaque_connect($engine);
-    $connection->stop($questionsessionid);
-    return true;
-}
 
 /**
  * Get a step from $qa, as if $pendingstep had already been added at the end
@@ -388,13 +303,6 @@ function qtype_opaque_update_state(question_attempt $qa,
 }
 
 /**
- * File name used to store the CSS of the question, question session id is appended.
- */
-function qtype_opaque_stylesheet_filename($questionsessionid) {
-    return OPAQUE_CSS_FILENAME_PREFIX . $questionsessionid . '.css';
-}
-
-/**
  * Pulls out the fields common to StartResponse and ProcessResponse.
  * @param object $opaquestate should be $SESSION->cached_opaque_state, or equivalent.
  * @param object $response a StartResponse or ProcessResponse.
@@ -446,7 +354,7 @@ function qtype_opaque_extract_stuff_from_response($opaquestate, $response, $reso
 
     // Process the CSS (only when we have a StartResponse).
     if (!empty($response->CSS)) {
-        $opaquestate->cssfilename = qtype_opaque_stylesheet_filename($response->questionSession);
+        $opaquestate->cssfilename = $resourcecache->stylesheet_filename($response->questionSession);
         $resourcecache->cache_file($opaquestate->cssfilename,
                 'text/css;charset=UTF-8', $response->CSS);
     }
