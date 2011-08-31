@@ -31,6 +31,7 @@ $string['configuredquestionengines'] = 'Configured question engines';
 $string['configuredquestionengines_help'] = 'Opaque is a way of connecting other compatible question engines into Moodle. For Moodle to use another question engine, it needs to be set up here. This screen lists all the question engines that have been configured. Lets you edit their configurations, delete configurations, and create new ones.';
 $string['couldnotconnect'] = 'Could not connect to the opaque server {$a}.';
 $string['couldnotgetengineinfo'] = 'Could not get the remote server information for engine id {$a}.';
+$string['couldnotgetquestionmetadata'] = 'The question engine was not able to return the maximum grades for this question. Are you sure the remote id and version are correct? (Technical information: {$a})';
 $string['couldnotloadenginename'] = 'Could not load the engine name from the database for engine id {$a}.';
 $string['couldnotloadengineservers'] = 'Could not load the servers list from the database for engine id {$a}.';
 $string['couldnotsaveengineinfo'] = 'Could not save the details of the question engine to the database.';

@@ -52,7 +52,7 @@ foreach ($engine->questionengines as $engineurl) {
     echo $OUTPUT->heading(get_string('testconnectionto', 'qtype_opaque', $engineurl), 3);
 
     try {
-        $info = qtype_opaque_get_engine_info($engineurl);
+        $info = qtype_opaque_connection::connect_to_url($engineurl)->get_engine_info();
         if (is_array($info) && isset($info['engineinfo']['#'])) {
             echo xml_to_dl($info['engineinfo']['#']);
         } else {

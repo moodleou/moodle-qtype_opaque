@@ -29,6 +29,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir . '/xmlize.php');
 require_once($CFG->dirroot . '/question/type/opaque/enginemanager.php');
 require_once($CFG->dirroot . '/question/type/opaque/resourcecache.php');
+require_once($CFG->dirroot . '/question/type/opaque/connection.php');
 
 
 /** User passed on question. Should match the definition in Om.question.Results. */
@@ -46,7 +47,6 @@ define('OPAQUE_ATTEMPTS_PARTIALLYCORRECT', -2);
 /** If developer hasn't set the value. Should match the definition in om.question.Results. */
 define('OPAQUE_ATTEMPTS_UNSET', -99);
 
-define('OPAQUE_SOAP_TIMEOUT', 10);
 
 /**
  * @return an array id -> enginename, that can be used to build a dropdown
@@ -103,36 +103,6 @@ function qtype_opaque_find_or_create_engineid($engine) {
     $manager = new qtype_opaque_engine_manager();
     return $manager->find_or_create_engineid($engine);
 }
-
-/**
- * @param mixed $engine either an $engine object, or the URL of a particular
- *      question engine server.
- * @return a soap connection, either to the specific URL give, or to to one of
- *      the question engine servers of this $engine object picked at random.
- *      returns a string to look up in the qtype_opaque language file as an error
- *      message if a problem arises.
- */
-function qtype_opaque_connect($engine) {
-    if (is_string($engine)) {
-        $url = $engine;
-    } else if (!empty($engine->urlused)) {
-        $url = $engine->urlused;
-    } else {
-        $url = $engine->questionengines[array_rand($engine->questionengines)];
-    }
-    ini_set('default_socket_timeout', OPAQUE_SOAP_TIMEOUT);
-    $connection = new SoapClient($url . '?wsdl', array(
-        'soap_version'       => SOAP_1_1,
-        'exceptions'         => true,
-        'connection_timeout' => OPAQUE_SOAP_TIMEOUT,
-    ));
-    if (!is_string($engine)) {
-        $engine->urlused = $url;
-    }
-    return $connection;
-}
-
-
 
 /**
  * Get a step from $qa, as if $pendingstep had already been added at the end
@@ -212,7 +182,7 @@ function qtype_opaque_update_state(question_attempt $qa,
         // If there is some question session active, try to stop it ...
         if (!empty($SESSION->cached_opaque_state->questionsessionid)) {
             try {
-                qtype_opaque_stop_question_session($SESSION->cached_opaque_state->engine,
+                qtype_opaque_connection::connect($SESSION->cached_opaque_state->engine)->stop(
                         $SESSION->cached_opaque_state->questionsessionid);
             } catch (SoapFault $e) {
                 unset($SESSION->cached_opaque_state);
@@ -243,48 +213,38 @@ function qtype_opaque_update_state(question_attempt $qa,
         $opaquestate->sequencenumber = -1;
         $opaquestate->resultssequencenumber = -1;
 
-        $engine = qtype_opaque_load_engine_def($question->engineid);
-        if (is_string($engine)) {
-            unset($SESSION->cached_opaque_state);
-            return $engine;
-        }
-        $opaquestate->engine = $engine;
+        $opaquestate->engine = qtype_opaque_load_engine_def($question->engineid);
+        $connection = qtype_opaque_connection::connect($opaquestate->engine);
 
         $step = qtype_opaque_get_step(0, $qa, $pendingstep);
-        $startreturn = qtype_opaque_start_question_session($engine, $question->remoteid,
-                $question->remoteversion, $step->get_all_data(),
-                $resourcecache->list_cached_resources(), $options);
-        if (is_string($startreturn)) {
-            unset($SESSION->cached_opaque_state);
-            return $startreturn;
-        }
+        $startreturn = $connection->start($question->remoteid, $question->remoteversion,
+                $step->get_all_data(), $resourcecache->list_cached_resources(), $options);
 
         qtype_opaque_extract_stuff_from_response($opaquestate, $startreturn, $resourcecache);
         $opaquestate->sequencenumber++;
         $cachestatus = 'catchup';
+
     } else {
         $opaquestate = $SESSION->cached_opaque_state;
+        $connection = qtype_opaque_connection::connect($opaquestate->engine);
     }
 
     if ($cachestatus == 'catchup') {
         if ($opaquestate->sequencenumber >= $targetseq) {
-            $error = qtype_opaque_stop_question_session($opaquestate->engine,
-                    $opaquestate->questionsessionid);
+            $connection->stop($opaquestate->questionsessionid);
         }
+
         while ($opaquestate->sequencenumber < $targetseq) {
             $step = qtype_opaque_get_step($opaquestate->sequencenumber + 1, $qa, $pendingstep);
 
-            $processreturn = qtype_opaque_process($opaquestate->engine,
-                    $opaquestate->questionsessionid, qtype_opaque_get_submitted_data($step));
-            if (is_string($processreturn)) {
-                unset($SESSION->cached_opaque_state);
-                return $processreturn;
-            }
+            $processreturn = $connection->process($opaquestate->questionsessionid,
+                    qtype_opaque_get_submitted_data($step));
 
             if (!empty($processreturn->results)) {
                 $opaquestate->resultssequencenumber = $opaquestate->sequencenumber + 1;
                 $opaquestate->results = $processreturn->results;
             }
+
             if ($processreturn->questionEnd) {
                 $opaquestate->questionended = true;
                 $opaquestate->sequencenumber = $targetseq;
@@ -292,10 +252,11 @@ function qtype_opaque_update_state(question_attempt $qa,
                 unset($opaquestate->questionsessionid);
                 break;
             }
-            qtype_opaque_extract_stuff_from_response($opaquestate, $processreturn, $resourcecache);
 
+            qtype_opaque_extract_stuff_from_response($opaquestate, $processreturn, $resourcecache);
             $opaquestate->sequencenumber++;
         }
+
         $cachestatus = 'good';
     }
 
@@ -401,16 +362,6 @@ function qtype_opaque_strip_omact_buttons($xhtml) {
     return preg_replace(
             '|<input(?:(?!disabled=)[^>])*? id="[^"]*_omact_[^"]*"(?:(?!disabled=)[^>])*?>' .
             '<script type="text/javascript">[^<]*</script>|', '', $xhtml);
-}
-
-/**
- * @param string $secret the secret string for this question engine.
- * @param int $userid the id of the user attempting this question.
- * @return string the passkey that needs to be sent to the quetion engine to
- *      show that we are allowed to start a question session for this user.
- */
-function qtype_opaque_generate_passkey($secret, $userid) {
-    return md5($secret . $userid);
 }
 
 /**

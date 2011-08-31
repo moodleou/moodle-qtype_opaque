@@ -92,16 +92,18 @@ class qtype_opaque_edit_form extends question_edit_form {
         // Try connecting to the remote question engine both as extra validation of the id, and
         // also to get the default grade.
         if ($remoteidok) {
-            $metadata = qtype_opaque_connection::make($engine)->get,
-                    $data['remoteid'], $data['remoteversion']);
-            if (is_string($metadata)) {
-                $errors['remoteid'] = $metadata;
-            } else if (!isset($metadata['questionmetadata']['#']['scoring']
-                    [0]['#']['marks'][0]['#'])) {
-                $errors['remoteid'] = get_string('maxgradenotreturned');
-            } else {
-                $this->_defaultmark = $metadata['questionmetadata']['#']['scoring']
-                        [0]['#']['marks'][0]['#'];
+            try {
+                $metadata = qtype_opaque_connection::connect($engine)->get_question_metadata(
+                        $data['remoteid'], $data['remoteversion']);
+                if (isset($metadata['questionmetadata']['#']['scoring'][0]['#']['marks'][0]['#'])) {
+                    $this->_defaultmark = $metadata['questionmetadata']['#']['scoring']
+                            [0]['#']['marks'][0]['#'];
+                } else {
+                    $errors['remoteid'] = get_string('maxgradenotreturned');
+                }
+            } catch (SoapFault $sf) {
+                $errors['remoteid'] = get_string('couldnotgetquestionmetadata', 'qtype_opaque',
+                        s($sf->getMessage()));
             }
         }
 
