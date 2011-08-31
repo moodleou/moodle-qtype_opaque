@@ -52,7 +52,7 @@ class qtype_opaque_edit_form extends question_edit_form {
 
     protected function definition_inner($mform) {
         $mform->addElement('select', 'engineid', get_string('questionengine', 'qtype_opaque'),
-                qtype_opaque_installed_engine_choices());
+                qtype_opaque_engine_manager::get()->choices());
         $mform->setType('engineid', PARAM_INT);
         $mform->addRule('engineid', null, 'required', null, 'client');
         $mform->addHelpButton('engineid', 'questionengine', 'qtype_opaque');
@@ -73,7 +73,7 @@ class qtype_opaque_edit_form extends question_edit_form {
         $errors = parent::validation($data, $files);
 
         // Check we can connect to this questoin engine.
-        $engine = qtype_opaque_load_engine_def($data['engineid']);
+        $engine =  qtype_opaque_engine_manager::get()->load($data['engineid']);
         if (is_string($engine)) {
             $errors['engineid'] = $engine;
         }

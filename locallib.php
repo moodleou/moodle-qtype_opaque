@@ -47,63 +47,6 @@ define('OPAQUE_ATTEMPTS_PARTIALLYCORRECT', -2);
 /** If developer hasn't set the value. Should match the definition in om.question.Results. */
 define('OPAQUE_ATTEMPTS_UNSET', -99);
 
-
-/**
- * @return an array id -> enginename, that can be used to build a dropdown
- * menu of installed question types.
- */
-function qtype_opaque_installed_engine_choices() {
-    global $DB;
-    return $DB->get_records_menu('question_opaque_engines', array(), 'name ASC', 'id, name');
-}
-
-/**
- * Load the definition of an engine from the database.
- * @param int $engineid the id of the engine to load.
- * @return mixed On success, and object with fields id, name, questionengines and questionbanks.
- * The last two fields are arrays of URLs. On an error, returns a string to look up in the
- * qtype_opaque language file as an error message.
- */
-function qtype_opaque_load_engine_def($engineid) {
-    $manager = new qtype_opaque_engine_manager();
-    return $manager->load_engine_def($engineid);
-}
-
-/**
- * Save or update an engine definition in the database, and returm the engine id. The definition
- * will be created if $engine->id is not set, and updated if it is.
- *
- * @param object $engine the definition to save.
- * @return int the id of the saved definition.
- */
-function qtype_opaque_save_engine_def($engine) {
-    $manager = new qtype_opaque_engine_manager();
-    return $manager->save_engine_def($engine);
-}
-
-/**
- * Delete the definition of an engine from the database.
- * @param int $engineid the id of the engine to delete.
- * @return bool whether the delete succeeded.
- */
-function qtype_opaque_delete_engine_def($engineid) {
-    $manager = new qtype_opaque_engine_manager();
-    return $manager->delete_engine_def($engineid);
-}
-
-/**
- * If an engine definition like this one (same passkey and server lists) already exists
- * in the database, then return its id, otherwise save this one to the database and
- * return the new engine id.
- *
- * @param object $engine the engine to ensure is in the databse.
- * @return int its id.
- */
-function qtype_opaque_find_or_create_engineid($engine) {
-    $manager = new qtype_opaque_engine_manager();
-    return $manager->find_or_create_engineid($engine);
-}
-
 /**
  * Get a step from $qa, as if $pendingstep had already been added at the end
  * of the list, if it is not null.
@@ -213,7 +156,7 @@ function qtype_opaque_update_state(question_attempt $qa,
         $opaquestate->sequencenumber = -1;
         $opaquestate->resultssequencenumber = -1;
 
-        $opaquestate->engine = qtype_opaque_load_engine_def($question->engineid);
+        $opaquestate->engine = qtype_opaque_engine_manager::get()->load($question->engineid);
         $connection = qtype_opaque_connection::connect($opaquestate->engine);
 
         $step = qtype_opaque_get_step(0, $qa, $pendingstep);

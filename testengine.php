@@ -41,7 +41,7 @@ $PAGE->set_title(get_string('testingengine', 'qtype_opaque'));
 $PAGE->navbar->add(get_string('testingengine', 'qtype_opaque'));
 
 // Load the engine definition.
-$engine = qtype_opaque_load_engine_def($engineid);
+$engine = qtype_opaque_engine_manager::get()->load($engineid);
 
 // Do the test.
 echo $OUTPUT->header();

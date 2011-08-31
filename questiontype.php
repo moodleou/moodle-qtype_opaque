@@ -41,7 +41,7 @@ class qtype_opaque extends question_type {
 
     public function __construct() {
         parent::__construct();
-        $this->enginemanager = new qtype_opaque_engine_manager();
+        $this->enginemanager = qtype_opaque_engine_manager::get();
     }
 
     /**
@@ -85,7 +85,7 @@ class qtype_opaque extends question_type {
         $expout .= '    <remoteid>' . $question->options->remoteid . "</remoteid>\n";
         $expout .= '    <remoteversion>' . $question->options->remoteversion . "</remoteversion>\n";
         $expout .= "    <engine>\n";
-        $engine = $this->enginemanager->load_engine_def($question->options->engineid);
+        $engine = $this->enginemanager->load($question->options->engineid);
         $expout .= "      <name>\n" . $format->writetext($engine->name, 4) . "      </name>\n";
         $expout .= "      <passkey>\n" . $format->writetext($engine->passkey, 4) .
                 "      </passkey>\n";
@@ -132,7 +132,7 @@ class qtype_opaque extends question_type {
                 $engine->questionbanks[] = $format->import_text($qbdata['#']['text']);
             }
         }
-        $question->engineid = $this->enginemanager->find_or_create_engineid($engine);
+        $question->engineid = $this->enginemanager->find_or_create($engine);
         return $question;
     }
 }

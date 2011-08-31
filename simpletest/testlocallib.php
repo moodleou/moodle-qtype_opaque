@@ -56,22 +56,22 @@ class qtype_opaque_locallib_test extends UnitTestCase {
         $engine2->questionbanks = array(
                 'https://ltsweb1.open.ac.uk/openmark/!question',
                 'https://ltsweb2.open.ac.uk/openmark/!question');
-        $this->assertTrue($manager->is_same_engine($engine1, $engine2));
+        $this->assertTrue($manager->is_same($engine1, $engine2));
 
         $engine2->questionbanks = array(
                 'https://ltsweb2.open.ac.uk/openmark/!question',
                 'https://ltsweb1.open.ac.uk/openmark/!question');
-        $this->assertTrue($manager->is_same_engine($engine1, $engine2));
+        $this->assertTrue($manager->is_same($engine1, $engine2));
 
         $engine2->name = 'Frog';
-        $this->assertTrue($manager->is_same_engine($engine1, $engine2));
+        $this->assertTrue($manager->is_same($engine1, $engine2));
 
         $engine2->passkey = 'newt';
-        $this->assertFalse($manager->is_same_engine($engine1, $engine2));
+        $this->assertFalse($manager->is_same($engine1, $engine2));
 
         $engine2->passkey = '';
         $engine2->questionengines = array(
                 'http://ltsweb2.open.ac.uk/om-qe/services/Om');
-        $this->assertFalse($manager->is_same_engine($engine1, $engine2));
+        $this->assertFalse($manager->is_same($engine1, $engine2));
     }
 }

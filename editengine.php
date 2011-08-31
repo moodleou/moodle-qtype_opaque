@@ -56,7 +56,7 @@ if ($mform->is_cancelled()) {
     $engine->passkey = trim($data->passkey);
     $engine->questionengines = $mform->extracturllist($data, 'questionengineurls');
     $engine->questionbanks = $mform->extracturllist($data, 'questionbankurls');
-    qtype_opaque_save_engine_def($engine);
+    qtype_opaque_engine_manager::get()->save($engine);
     redirect(new moodle_url('/question/type/opaque/engines.php'));
 }
 
@@ -64,7 +64,7 @@ if ($mform->is_cancelled()) {
 $defaults = new stdClass();
 $defaults->engineid = $engineid;
 if ($engineid) {
-    $engine = qtype_opaque_load_engine_def($engineid);
+    $engine = qtype_opaque_engine_manager::get()->load($engineid);
     $defaults->enginename = $engine->name;
     $defaults->questionengineurls = implode("\n", $engine->questionengines);
     $defaults->questionbankurls = implode("\n", $engine->questionbanks);

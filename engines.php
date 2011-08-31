@@ -40,7 +40,7 @@ $delete = optional_param('delete', 0, PARAM_INT);
 if ($delete) {
     $engine = $DB->get_record('question_opaque_engines', array('id' => $delete), '*', MUST_EXIST);
     if (optional_param('confirm', false, PARAM_BOOL) && confirm_sesskey()) {
-        qtype_opaque_delete_engine_def($delete);
+        qtype_opaque_engine_manager::get()->delete($delete);
         redirect($PAGE->url);
     } else {
         echo $OUTPUT->header();

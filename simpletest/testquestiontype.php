@@ -44,15 +44,16 @@ class qtype_opaque_engine_manager_mock extends qtype_opaque_engine_manager {
         $this->knownengines[$id] = $engine;
     }
 
-    public function load_engine_def($engineid) {
+    public function load($engineid) {
         if (isset($this->knownengines[$engineid])) {
             return $this->knownengines[$engineid];
         } else {
-            return format_opaque_error('unrecognisedservertype', $engineid);
+            throw new dml_missing_record_exception('question_opaque_servers',
+                    '', array('id' => $engineid));
         }
     }
 
-    public function save_engine_def($engine) {
+    public function save($engine) {
         $this->knownengines[] = $engine;
         return end(array_keys($this->knownengines));
     }
@@ -61,7 +62,7 @@ class qtype_opaque_engine_manager_mock extends qtype_opaque_engine_manager {
         // Should not be used, but override to avoid accidental DB writes.
     }
 
-    public function delete_engine_def($engineid) {
+    public function delete($engineid) {
         unset($this->knownengines[$engineid]);
         return true;
     }
@@ -239,8 +240,8 @@ class qtype_opaque_test extends UnitTestCase {
         $expectedq->engineid = 0;
 
         $this->assert(new CheckSpecifiedFieldsExpectation($expectedq), $q);
-        $this->assertTrue($manager->is_same_engine(
-                $engine, $manager->load_engine_def($q->engineid)));
+        $this->assertTrue($manager->is_same(
+                $engine, $manager->load($q->engineid)));
     }
 
     public function test_xml_export() {

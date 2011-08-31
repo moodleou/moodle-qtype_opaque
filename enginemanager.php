@@ -34,6 +34,20 @@ defined('MOODLE_INTERNAL') || die();
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class qtype_opaque_engine_manager {
+
+    /** @return qtype_opaque_engine_manager get the engine manager. */
+    public static function get() {
+        return new self();
+    }
+
+    /**
+     * @return array engine id => name of installed engines that can be used in the UI.
+     */
+    public function choices() {
+        global $DB;
+        return $DB->get_records_menu('question_opaque_engines', array(), 'name ASC', 'id, name');
+    }
+
     /**
      * Load the definition of an engine from the database.
      * @param int $engineid the id of the engine to load.
@@ -42,10 +56,10 @@ class qtype_opaque_engine_manager {
      *      returns a string to look up in the qtype_opaque language file as an
      *      error message.
      */
-    public function load_engine_def($engineid) {
+    public function load($engineid) {
         global $DB;
         $engine = $DB->get_record('question_opaque_engines',
-        array('id' => $engineid), '*', MUST_EXIST);
+                array('id' => $engineid), '*', MUST_EXIST);
 
         $engine->questionengines = array();
         $engine->questionbanks = array();
@@ -73,7 +87,7 @@ class qtype_opaque_engine_manager {
      * @param object $engine the definition to save.
      * @return int the id of the saved definition.
      */
-    public function save_engine_def($engine) {
+    public function save($engine) {
         global $DB;
         $transaction = $DB->start_delegated_transaction();
 
@@ -113,7 +127,7 @@ class qtype_opaque_engine_manager {
      * @param int $engineid the id of the engine to delete.
      * @return bool whether the delete succeeded.
      */
-    public function delete_engine_def($engineid) {
+    public function delete($engineid) {
         global $DB;
         $transaction = $DB->start_delegated_transaction();
         $DB->delete_records('question_opaque_servers', array('engineid' => $engineid));
@@ -157,21 +171,21 @@ class qtype_opaque_engine_manager {
      * @param object $engine the engine to ensure is in the databse.
      * @return int its id.
      */
-    public function find_or_create_engineid($engine) {
+    public function find_or_create($engine) {
         $possibleengineids = $this->get_possibly_matching_engines($engine);
 
         // Then we loop through the possibilities loading the full definition and comparing it.
         if ($possibleengineids) {
             foreach ($possibleengineids as $engineid => $ignored) {
-                $testengine = $this->load_engine_def($engineid);
+                $testengine = $this->load($engineid);
                 $testengine->passkey = $testengine->passkey;
-                if ($this->is_same_engine($engine, $testengine)) {
+                if ($this->is_same($engine, $testengine)) {
                     return $engineid;
                 }
             }
         }
 
-        return $this->save_engine_def($engine);
+        return $this->save($engine);
     }
 
     /**
@@ -181,7 +195,7 @@ class qtype_opaque_engine_manager {
      * @param object $engine2 another engine definition.
      * @return bool whether they are the same.
      */
-    public function is_same_engine($engine1, $engine2) {
+    public function is_same($engine1, $engine2) {
         // Same passkey.
         $ans = $engine1->passkey == $engine2->passkey &&
         // Same question engines.
