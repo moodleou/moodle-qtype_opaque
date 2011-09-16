@@ -465,12 +465,19 @@ function qtype_opaque_extract_stuff_from_response($opaquestate, $response, $reso
     }
     $resourcecache->cache_resources($response->resources);
 
-    // Process the other bits.
-    $opaquestate->progressinfo = $response->progressInfo;
+    // Save the progress info. Note, another nasty hack pending a permanent fix
+    // to OpenMark.
+    $opaquestate->progressinfo = str_replace(
+            array('attempts', 'attempt'),
+            array('tries', 'try'),
+            $response->progressInfo);
+
+    // Record the session id.
     if (!empty($response->questionSession)) {
         $opaquestate->questionsessionid = $response->questionSession;
     }
 
+    // Store any head HTML.
     if (!empty($response->head)) {
         $opaquestate->headXHTML = $response->head;
     }
