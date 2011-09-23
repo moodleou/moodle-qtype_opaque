@@ -127,6 +127,7 @@ function qtype_opaque_connect($engine) {
         'soap_version'       => SOAP_1_1,
         'exceptions'         => true,
         'connection_timeout' => OPAQUE_SOAP_TIMEOUT,
+        'features'           => SOAP_SINGLE_ELEMENT_ARRAYS,
     ));
     if (!is_string($engine)) {
         $engine->urlused = $url;
