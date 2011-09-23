@@ -260,7 +260,8 @@ function qtype_opaque_extract_stuff_from_response($opaquestate, $response, $reso
     if (!empty($response->CSS)) {
         $opaquestate->cssfilename = $resourcecache->stylesheet_filename($response->questionSession);
         $resourcecache->cache_file($opaquestate->cssfilename,
-                'text/css;charset=UTF-8', $response->CSS);
+                'text/css;charset=UTF-8',
+                str_replace(array_keys($replaces), $replaces, $response->CSS));
     }
 
     // Process the resources.
@@ -291,7 +292,7 @@ function qtype_opaque_extract_stuff_from_response($opaquestate, $response, $reso
 
     // Store any head HTML.
     if (!empty($response->head)) {
-        $opaquestate->headXHTML = $response->head;
+        $opaquestate->headXHTML = str_replace(array_keys($replaces), $replaces, $response->head);
     }
 
     return true;
