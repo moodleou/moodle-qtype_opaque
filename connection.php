@@ -51,6 +51,7 @@ class qtype_opaque_connection {
                     'soap_version'       => SOAP_1_1,
                     'exceptions'         => true,
                     'connection_timeout' => self::TIMEOUT,
+                    'features'           => SOAP_SINGLE_ELEMENT_ARRAYS,
                 ));
     }
 
