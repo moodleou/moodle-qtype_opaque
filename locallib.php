@@ -337,12 +337,14 @@ function qtype_opaque_update_state(question_attempt $qa,
         $opaquestate->engine = $engine;
 
         $step = qtype_opaque_get_step(0, $qa, $pendingstep);
-        $startreturn = qtype_opaque_start_question_session($engine, $question->remoteid,
+        try {
+            $startreturn = qtype_opaque_start_question_session($engine, $question->remoteid,
                 $question->remoteversion, $step->get_all_data(),
                 $resourcecache->list_cached_resources(), $options);
-        if (is_string($startreturn)) {
+
+        } catch (SoapFault $e) {
             unset($SESSION->cached_opaque_state);
-            return $startreturn;
+            throw $e;
         }
 
         qtype_opaque_extract_stuff_from_response($opaquestate, $startreturn, $resourcecache);
@@ -360,11 +362,12 @@ function qtype_opaque_update_state(question_attempt $qa,
         while ($opaquestate->sequencenumber < $targetseq) {
             $step = qtype_opaque_get_step($opaquestate->sequencenumber + 1, $qa, $pendingstep);
 
-            $processreturn = qtype_opaque_process($opaquestate->engine,
+            try {
+                $processreturn = qtype_opaque_process($opaquestate->engine,
                     $opaquestate->questionsessionid, qtype_opaque_get_submitted_data($step));
-            if (is_string($processreturn)) {
+            } catch (SoapFault $e) {
                 unset($SESSION->cached_opaque_state);
-                return $processreturn;
+                throw $e;
             }
 
             if (!empty($processreturn->results)) {
