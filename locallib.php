@@ -446,7 +446,8 @@ function qtype_opaque_extract_stuff_from_response($opaquestate, $response, $reso
     $opaquestate->xhtml = $xhtml;
 
     // Process the CSS (only when we have a StartResponse).
-    if (!empty($response->CSS)) {
+    // FIXME The OPAQUE protocol spec does specify such limitation
+    if (!empty($response->CSS) && !empty($response->questionSession)) {
         $css = str_replace(array_keys($replaces), $replaces, $response->CSS);
         $opaquestate->cssfilename = qtype_opaque_stylesheet_filename($response->questionSession);
         $resourcecache->cache_file($opaquestate->cssfilename,
@@ -457,18 +458,24 @@ function qtype_opaque_extract_stuff_from_response($opaquestate, $response, $reso
     // TODO remove this. Evil hack. IE cannot cope with : and other odd characters
     // in the name argument to window.open. Until we can deploy a fix to the
     // OpenMark servers, apply the fix to the JS code here.
-    foreach ($response->resources as $key => $resource) {
-        if ($resource->filename == 'script.js') {
-            $response->resources[$key]->content = preg_replace(
-                    '/(?<=' . preg_quote('window.open("", idprefix') . '|' .
-                            preg_quote('window.open("",idprefix') . ')\+(?=\"\w+\"\+id,)/',
-                    '.replace(/\W/g,"_")+', $resource->content);
+    if(!empty($response->resources)) {
+        foreach ($response->resources as $key => $resource) {
+            if ($resource->filename == 'script.js') {
+                $response->resources[$key]->content = preg_replace(
+                        '/(?<=' . preg_quote('window.open("", idprefix') . '|' .
+                                preg_quote('window.open("",idprefix') . ')\+(?=\"\w+\"\+id,)/',
+                        '.replace(/\W/g,"_")+', $resource->content);
+            }
         }
+        $resourcecache->cache_resources($response->resources);
     }
-    $resourcecache->cache_resources($response->resources);
 
     // Process the other bits.
-    $opaquestate->progressinfo = $response->progressInfo;
+    if(!empty($response->progressinfo))
+        $opaquestate->progressinfo = $response->progressInfo;
+    else
+        $opaquestate->progressinfo = null;
+
     if (!empty($response->questionSession)) {
         $opaquestate->questionsessionid = $response->questionSession;
     }
