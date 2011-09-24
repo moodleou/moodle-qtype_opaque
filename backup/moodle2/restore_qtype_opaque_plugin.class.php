@@ -74,7 +74,7 @@ class restore_qtype_opaque_plugin extends restore_qtype_plugin {
         $questioncreated = $this->get_mappingid('question_created', $oldquestionid) ? true : false;
 
         // If the question has been created by restore, we need to create its question_ddwtos too
-        if (!$questioncreated) {
+        if ($questioncreated) {
             // New question, insert.
             $question = (object) $data;
             $question->engineid = $this->engine_manager()->find_or_create_engineid($engine);
