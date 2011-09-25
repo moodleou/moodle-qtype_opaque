@@ -127,6 +127,7 @@ function qtype_opaque_connect($engine) {
         'soap_version'       => SOAP_1_1,
         'exceptions'         => true,
         'connection_timeout' => OPAQUE_SOAP_TIMEOUT,
+        'features'           => SOAP_SINGLE_ELEMENT_ARRAYS,
     ));
     if (!is_string($engine)) {
         $engine->urlused = $url;
@@ -336,12 +337,14 @@ function qtype_opaque_update_state(question_attempt $qa,
         $opaquestate->engine = $engine;
 
         $step = qtype_opaque_get_step(0, $qa, $pendingstep);
-        $startreturn = qtype_opaque_start_question_session($engine, $question->remoteid,
+        try {
+            $startreturn = qtype_opaque_start_question_session($engine, $question->remoteid,
                 $question->remoteversion, $step->get_all_data(),
                 $resourcecache->list_cached_resources(), $options);
-        if (is_string($startreturn)) {
+
+        } catch (SoapFault $e) {
             unset($SESSION->cached_opaque_state);
-            return $startreturn;
+            throw $e;
         }
 
         qtype_opaque_extract_stuff_from_response($opaquestate, $startreturn, $resourcecache);
@@ -359,11 +362,12 @@ function qtype_opaque_update_state(question_attempt $qa,
         while ($opaquestate->sequencenumber < $targetseq) {
             $step = qtype_opaque_get_step($opaquestate->sequencenumber + 1, $qa, $pendingstep);
 
-            $processreturn = qtype_opaque_process($opaquestate->engine,
+            try {
+                $processreturn = qtype_opaque_process($opaquestate->engine,
                     $opaquestate->questionsessionid, qtype_opaque_get_submitted_data($step));
-            if (is_string($processreturn)) {
+            } catch (SoapFault $e) {
                 unset($SESSION->cached_opaque_state);
-                return $processreturn;
+                throw $e;
             }
 
             if (!empty($processreturn->results)) {
@@ -445,34 +449,43 @@ function qtype_opaque_extract_stuff_from_response($opaquestate, $response, $reso
     $opaquestate->xhtml = $xhtml;
 
     // Process the CSS (only when we have a StartResponse).
-    if (!empty($response->CSS)) {
+    // FIXME The OPAQUE protocol spec does specify such limitation
+    if (!empty($response->CSS) && !empty($response->questionSession)) {
+        $css = str_replace(array_keys($replaces), $replaces, $response->CSS);
         $opaquestate->cssfilename = qtype_opaque_stylesheet_filename($response->questionSession);
         $resourcecache->cache_file($opaquestate->cssfilename,
-                'text/css;charset=UTF-8', $response->CSS);
+                'text/css;charset=UTF-8', $css);
     }
 
     // Process the resources.
     // TODO remove this. Evil hack. IE cannot cope with : and other odd characters
     // in the name argument to window.open. Until we can deploy a fix to the
     // OpenMark servers, apply the fix to the JS code here.
-    foreach ($response->resources as $key => $resource) {
-        if ($resource->filename == 'script.js') {
-            $response->resources[$key]->content = preg_replace(
-                    '/(?<=' . preg_quote('window.open("", idprefix') . '|' .
-                            preg_quote('window.open("",idprefix') . ')\+(?=\"\w+\"\+id,)/',
-                    '.replace(/\W/g,"_")+', $resource->content);
+    if(!empty($response->resources)) {
+        foreach ($response->resources as $key => $resource) {
+            if ($resource->filename == 'script.js') {
+                $response->resources[$key]->content = preg_replace(
+                        '/(?<=' . preg_quote('window.open("", idprefix') . '|' .
+                                preg_quote('window.open("",idprefix') . ')\+(?=\"\w+\"\+id,)/',
+                        '.replace(/\W/g,"_")+', $resource->content);
+            }
         }
+        $resourcecache->cache_resources($response->resources);
     }
-    $resourcecache->cache_resources($response->resources);
 
     // Process the other bits.
-    $opaquestate->progressinfo = $response->progressInfo;
+    if(!empty($response->progressinfo))
+        $opaquestate->progressinfo = $response->progressInfo;
+    else
+        $opaquestate->progressinfo = null;
+
     if (!empty($response->questionSession)) {
         $opaquestate->questionsessionid = $response->questionSession;
     }
 
     if (!empty($response->head)) {
-        $opaquestate->headXHTML = $response->head;
+        $head = str_replace(array_keys($replaces), $replaces, $response->head);
+        $opaquestate->headXHTML = $head;
     }
 
     return true;
