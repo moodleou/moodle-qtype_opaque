@@ -25,5 +25,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version  = 2011051200;
+$plugin->version  = 2011092600;
 $plugin->requires = 2011051212;
+$plugin->dependencies = array(
+    'qbehaviour_opaque' => 2011092600,
+);

@@ -28,6 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/formslib.php');
 require_once($CFG->libdir . '/validateurlsyntax.php');
+require_once($CFG->dirroot . '/question/type/opaque/locallib.php');
 
 
 /**
@@ -58,6 +59,11 @@ class qtype_opaque_engine_edit_form extends moodleform {
         $mform->addElement('text', 'passkey', get_string('passkey', 'qtype_opaque'));
         $mform->setType('passkey', PARAM_MULTILANG);
         $mform->addHelpButton('passkey', 'passkey', 'qtype_opaque');
+
+        $mform->addElement('text', 'timeout', get_string('timeout', 'qtype_opaque'));
+        $mform->setType('timeout', PARAM_INT);
+        $mform->setDefault('timeout', qtype_opaque_connection::DEFAULT_TIMEOUT);
+        $mform->addHelpButton('timeout', 'timeout', 'qtype_opaque');
 
         $mform->addElement('hidden', 'engineid');
         $mform->setType('engineid', PARAM_INT);
@@ -105,8 +111,14 @@ class qtype_opaque_engine_edit_form extends moodleform {
 
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
+
         $this->validateurllist($data, 'questionengineurls', $errors);
         $this->validateurllist($data, 'questionbankurls', $errors);
+
+        if (empty($data['timeout']) || $data['timeout'] <= 0) {
+            $errors['timeout'] = get_string('timeoutmustbepositive', 'qtype_opaque');
+        }
+
         return $errors;
     }
 }

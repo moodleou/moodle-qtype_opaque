@@ -35,7 +35,7 @@ defined('MOODLE_INTERNAL') || die();
  */
 class qtype_opaque_connection {
     /** @var int timeout for SOAP calls, in seconds. */
-    const TIMEOUT = 10; // Seconds.
+    const DEFAULT_TIMEOUT = 10; // Seconds.
 
     protected $questionbanks = array();
     protected $passkeysalt = '';
@@ -45,22 +45,18 @@ class qtype_opaque_connection {
      * Constructor.
      * @param object $engine information about the engine being connected to.
      */
-    protected function __construct($url) {
-        ini_set('default_socket_timeout', self::TIMEOUT);
+    protected function __construct($url, $timeout) {
+        ini_set('default_socket_timeout', $timeout); // TODO, how to handle this?
+        // The problem is if we are connecting to different engines with
+        // different timeouts. Do we need to use the idea from
+        // http://www.darqbyte.com/2009/10/21/timing-out-php-soap-calls/
+
         $this->soapclient = new SoapClient($url . '?wsdl', array(
                     'soap_version'       => SOAP_1_1,
                     'exceptions'         => true,
-                    'connection_timeout' => self::TIMEOUT,
+                    'connection_timeout' => $timeout,
                     'features'           => SOAP_SINGLE_ELEMENT_ARRAYS,
                 ));
-    }
-
-    /**
-     * Make a new connection to a given engine url.
-     * @param string $url the URL of the question engine to connect to.
-     */
-    public static function connect_to_url($url) {
-        return new self($url);
     }
 
     /**
@@ -75,7 +71,7 @@ class qtype_opaque_connection {
             $url = $engine->questionengines[array_rand($engine->questionengines)];
         }
 
-        $connection = new self($url);
+        $connection = new self($url, $engine->timeout);
         $connection->questionbanks = $engine->questionbanks;
         $connection->passkeysalt = $engine->passkey;
 

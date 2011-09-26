@@ -91,6 +91,10 @@ class qtype_opaque_engine_manager {
         global $DB;
         $transaction = $DB->start_delegated_transaction();
 
+        if (empty($engine->timeout)) {
+            $engine->timeout = qtype_opaque_connection::DEFAULT_TIMEOUT;
+        }
+
         if (!empty($engine->id)) {
             $DB->update_record('question_opaque_engines', $engine);
         } else {
