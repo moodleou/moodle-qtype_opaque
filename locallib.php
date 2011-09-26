@@ -180,8 +180,13 @@ function qtype_opaque_update_state(question_attempt $qa,
         while ($opaquestate->sequencenumber < $targetseq) {
             $step = qtype_opaque_get_step($opaquestate->sequencenumber + 1, $qa, $pendingstep);
 
-            $processreturn = $connection->process($opaquestate->questionsessionid,
-                    qtype_opaque_get_submitted_data($step));
+            try {
+                $processreturn = $connection->process($opaquestate->questionsessionid,
+                        qtype_opaque_get_submitted_data($step));
+            } catch (SoapFault $e) {
+                unset($SESSION->cached_opaque_state);
+                throw $e;
+            }
 
             if (!empty($processreturn->results)) {
                 $opaquestate->resultssequencenumber = $opaquestate->sequencenumber + 1;
