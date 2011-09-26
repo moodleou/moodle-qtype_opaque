@@ -46,7 +46,7 @@ class qtype_opaque_edit_form extends question_edit_form {
         $mform->removeElement('generalfeedback');
         $mform->removeElement('defaultmark');
         $mform->addElement('hidden', 'defaultmark');
-        $mform->setType('defaultmark', PARAM_INT);
+        $mform->setType('defaultmark', PARAM_FLOAT);
         $mform->setDefault('defaultmark', 1);
     }
 
