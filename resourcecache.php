@@ -166,14 +166,16 @@ class qtype_opaque_resource_cache {
      * @param array $resources as returned from start or process Opaque methods.
      */
     public function cache_resources($resources) {
-        if (!empty($resources)) {
-            foreach ($resources as $resource) {
-                $mimetype = $resource->mimeType;
-                if (strpos($resource->mimeType, 'text/') === 0 && !empty($resource->encoding)) {
-                    $mimetype .= ';charset=' . $resource->encoding;
-                }
-                $this->cache_file($resource->filename, $mimetype, $resource->content);
+        if (empty($resources)) {
+            return;
+        }
+
+        foreach ($resources as $resource) {
+            $mimetype = $resource->mimeType;
+            if (strpos($resource->mimeType, 'text/') === 0 && !empty($resource->encoding)) {
+                $mimetype .= ';charset=' . $resource->encoding;
             }
+            $this->cache_file($resource->filename, $mimetype, $resource->content);
         }
     }
 

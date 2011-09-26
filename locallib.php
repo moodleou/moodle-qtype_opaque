@@ -213,7 +213,8 @@ function qtype_opaque_update_state(question_attempt $qa,
  * @param object $resourcecache the resource cache for this question.
  * @return true on success, or a string error message on failure.
  */
-function qtype_opaque_extract_stuff_from_response($opaquestate, $response, $resourcecache) {
+function qtype_opaque_extract_stuff_from_response($opaquestate, $response,
+        qtype_opaque_resource_cache $resourcecache) {
     global $CFG;
     static $replaces;
 
@@ -256,11 +257,16 @@ function qtype_opaque_extract_stuff_from_response($opaquestate, $response, $reso
 
     $opaquestate->xhtml = $xhtml;
 
+    // Record the session id.
+    if (!empty($response->questionSession)) {
+        $opaquestate->questionsessionid = $response->questionSession;
+    }
+
     // Process the CSS (only when we have a StartResponse).
     if (!empty($response->CSS)) {
-        $opaquestate->cssfilename = $resourcecache->stylesheet_filename($response->questionSession);
-        $resourcecache->cache_file($opaquestate->cssfilename,
-                'text/css;charset=UTF-8',
+        $opaquestate->cssfilename = $resourcecache->stylesheet_filename(
+                $opaquestate->questionsessionid);
+        $resourcecache->cache_file($opaquestate->cssfilename, 'text/css;charset=UTF-8',
                 str_replace(array_keys($replaces), $replaces, $response->CSS));
     }
 
@@ -268,6 +274,9 @@ function qtype_opaque_extract_stuff_from_response($opaquestate, $response, $reso
     // TODO remove this. Evil hack. IE cannot cope with : and other odd characters
     // in the name argument to window.open. Until we can deploy a fix to the
     // OpenMark servers, apply the fix to the JS code here.
+    if (empty($response->resources)) {
+        $response->resources = array();
+    }
     foreach ($response->resources as $key => $resource) {
         if ($resource->filename == 'script.js') {
             $response->resources[$key]->content = preg_replace(
@@ -284,11 +293,6 @@ function qtype_opaque_extract_stuff_from_response($opaquestate, $response, $reso
             array('attempts', 'attempt'),
             array('tries', 'try'),
             $response->progressInfo);
-
-    // Record the session id.
-    if (!empty($response->questionSession)) {
-        $opaquestate->questionsessionid = $response->questionSession;
-    }
 
     // Store any head HTML.
     if (!empty($response->head)) {
