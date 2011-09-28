@@ -46,12 +46,7 @@ class qtype_opaque_connection {
      * @param object $engine information about the engine being connected to.
      */
     protected function __construct($url, $timeout) {
-        ini_set('default_socket_timeout', $timeout); // TODO, how to handle this?
-        // The problem is if we are connecting to different engines with
-        // different timeouts. Do we need to use the idea from
-        // http://www.darqbyte.com/2009/10/21/timing-out-php-soap-calls/
-
-        $this->soapclient = new SoapClient($url . '?wsdl', array(
+        $this->soapclient = new qtype_opaque_soap_client_with_timeout($url . '?wsdl', array(
                     'soap_version'       => SOAP_1_1,
                     'exceptions'         => true,
                     'connection_timeout' => $timeout,
@@ -168,5 +163,74 @@ class qtype_opaque_connection {
      */
     public function stop($questionsessionid) {
         $this->soapclient->stop($questionsessionid);
+    }
+}
+
+
+/**
+ * SoapClient subclass that implements time-outs correctly.
+ *
+ * Thanks to http://www.darqbyte.com/2009/10/21/timing-out-php-soap-calls/
+ * for outlining this solution.
+ *
+ * @copyright  2011 The Open University
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class qtype_opaque_soap_client_with_timeout extends SoapClient {
+    /** @var array configuration options for CURL. */
+    protected $curloptions = array(
+        CURLOPT_VERBOSE => false,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST => true,
+        CURLOPT_HEADER => false,
+        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_SSL_VERIFYHOST => false,
+    );
+
+    /** @var array standard HTTP headers to send. */
+    protected $headers = array(
+        'Content-Type: text/xml',
+    );
+
+    /*
+     * (non-PHPdoc)
+     * @see SoapClient::__construct()
+     */
+    public function __construct($wsdl, $options) {
+        parent::__construct($wsdl, $options);
+        if (!array_key_exists('connection_timeout', $options)) {
+            throw new coding_exception('qtype_opaque_timeoutable_soap_client requires ' .
+                    'the connection timeout to be specificed in the constructor options.');
+        }
+        $this->curloptions[CURLOPT_TIMEOUT] = $options['connection_timeout'];
+    }
+
+    /*
+     * (non-PHPdoc)
+     * @see SoapClient::__doRequest()
+     */
+    public function __doRequest($request, $location, $action, $version, $one_way = false) {
+
+        $headers = $this->headers;
+        if ($action) {
+            $headers[] = 'SOAPAction: ' . $action;
+        } else {
+            $headers[] = 'SOAPAction: none'; // Seemingly, this is necessary.
+        }
+
+        $curl = curl_init($location);
+        curl_setopt_array($curl, $this->curloptions);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $request);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+
+        $response = curl_exec($curl);
+        if (curl_errno($curl)) {
+            throw new SoapFault('Receiver', curl_error($curl));
+        }
+        curl_close($curl);
+
+        if (!$one_way) {
+            return ($response);
+        }
     }
 }
