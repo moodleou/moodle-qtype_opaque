@@ -27,6 +27,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 
+// You can set
+// $CFG->qtype_opaque_soap_class = 'qtype_opaque_soap_server_with_logging';
+// To log every SOAP call in huge detail. Lots are writted to moodledata/temp.
+
 /**
  * Wraps the SOAP connection to the question engine.
  *
@@ -46,13 +50,21 @@ class qtype_opaque_connection {
      * @param object $engine information about the engine being connected to.
      */
     public function __construct($engine) {
+        global $CFG;
+
         if (!empty($engine->urlused)) {
             $url = $engine->urlused;
         } else {
             $url = $engine->questionengines[array_rand($engine->questionengines)];
         }
 
-        $this->soapclient = new qtype_opaque_soap_client_with_timeout($url . '?wsdl', array(
+        if (!empty($CFG->qtype_opaque_soap_class)) {
+            $class = $CFG->qtype_opaque_soap_class;
+        } else {
+            $class = 'qtype_opaque_soap_client_with_timeout';
+        }
+
+        $this->soapclient = new $class($url . '?wsdl', array(
                     'soap_version'       => SOAP_1_1,
                     'exceptions'         => true,
                     'connection_timeout' => $engine->timeout,
@@ -221,5 +233,91 @@ class qtype_opaque_soap_client_with_timeout extends SoapClient {
         if (!$one_way) {
             return ($response);
         }
+    }
+}
+
+
+/**
+ * A subclass of qtype_opaque_connection that logs every SOAP call made.
+ * @copyright  2011 The Open University
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ *
+ */
+class qtype_opaque_soap_server_with_logging extends qtype_opaque_soap_client_with_timeout {
+    /*
+     * (non-PHPdoc)
+     * @see SoapClient::__soapCall()
+     */
+    public function __call($function, $arguments) {
+        $this->__log_arguments($function, $arguments);
+        $timenow = microtime(true);
+
+        try {
+            $result = parent::__call($function, $arguments);
+            $this->__log_result($function, $result, microtime(true) - $timenow);
+            return $result;
+        } catch (Exception $e) {
+            $this->__log_exception($function, $e, microtime(true) - $timenow);
+            throw $e;
+        }
+    }
+
+    protected function __write_to_log($message) {
+        global $CFG;
+        file_put_contents($CFG->dataroot . '/temp/opaquelog.txt', $message . "\n",
+                FILE_APPEND | LOCK_EX);
+    }
+
+    protected function __write_to_short_log($message) {
+        global $CFG;
+        file_put_contents($CFG->dataroot . '/temp/opaqueshortlog.txt', $message . "\n",
+                FILE_APPEND | LOCK_EX);
+    }
+
+    protected function __log_arguments($function, $arguments) {
+        $this->__log_rule();
+        $this->__write_to_log("$function called with arguments:");
+        foreach ($arguments as $arg) {
+            $this->__log_thin_rule();
+            $this->__log_object($arg);
+        }
+    }
+
+    protected function __log_result($function, $result, $timetaken) {
+        $this->__log_thin_rule();
+        $this->__write_to_log("$function returned after {$this->__format_time($timetaken)}s. Value:");
+        $this->__log_thin_rule();
+        $this->__log_object($result);
+        $this->__log_rule();
+
+        $this->__write_to_short_log("Call to $function succeeded after {$this->__format_time($timetaken)}s.");
+    }
+
+    protected function __log_exception($function, $e, $timetaken) {
+        $this->__log_thin_rule();
+        $this->__write_to_log("$function failed after {$this->__format_time($timetaken)}s. Exception:");
+        $this->__log_thin_rule();
+        $this->__log_object($result);
+        $this->__log_rule();
+
+        $this->__write_to_short_log("Call to $function failed after {$this->__format_time($timetaken)}s.");
+    }
+
+    protected function __log_object($o) {
+        $this->__write_to_log(print_r($o, true));
+    }
+
+    protected function __log_rule() {
+        $this->__write_to_log(
+                "================================================================================");
+    }
+
+    protected function __log_thin_rule() {
+        $this->__write_to_log(
+                "--------------------------------------------------------------------------------");
+    }
+
+    protected function __format_time($timetaken) {
+        return format_float($timetaken, 4);
     }
 }
