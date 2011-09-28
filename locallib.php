@@ -95,6 +95,7 @@ function qtype_opaque_get_submitted_data(question_attempt_step $step) {
 function qtype_opaque_update_state(question_attempt $qa,
         question_attempt_step $pendingstep = null, question_display_options $options = null) {
     global $SESSION;
+    $enginemanager = qtype_opaque_engine_manager::get();
 
     $question = $qa->get_question();
     $targetseq = $qa->get_num_steps() - 1;
@@ -125,7 +126,7 @@ function qtype_opaque_update_state(question_attempt $qa,
         // If there is some question session active, try to stop it ...
         if (!empty($SESSION->cached_opaque_state->questionsessionid)) {
             try {
-                qtype_opaque_connection::connect($SESSION->cached_opaque_state->engine)->stop(
+                $enginemanager->get_connection($SESSION->cached_opaque_state->engine)->stop(
                         $SESSION->cached_opaque_state->questionsessionid);
             } catch (SoapFault $e) {
                 unset($SESSION->cached_opaque_state);
@@ -156,8 +157,8 @@ function qtype_opaque_update_state(question_attempt $qa,
         $opaquestate->sequencenumber = -1;
         $opaquestate->resultssequencenumber = -1;
 
-        $opaquestate->engine = qtype_opaque_engine_manager::get()->load($question->engineid);
-        $connection = qtype_opaque_connection::connect($opaquestate->engine);
+        $opaquestate->engine = $enginemanager->load($question->engineid);
+        $connection = $enginemanager->get_connection($opaquestate->engine);
 
         $step = qtype_opaque_get_step(0, $qa, $pendingstep);
         $startreturn = $connection->start($question->remoteid, $question->remoteversion,
@@ -169,7 +170,7 @@ function qtype_opaque_update_state(question_attempt $qa,
 
     } else {
         $opaquestate = $SESSION->cached_opaque_state;
-        $connection = qtype_opaque_connection::connect($opaquestate->engine);
+        $connection = $enginemanager->get_connection($opaquestate->engine);
     }
 
     if ($cachestatus == 'catchup') {

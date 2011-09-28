@@ -62,7 +62,7 @@ class qtype_opaque_engine_edit_form extends moodleform {
 
         $mform->addElement('text', 'timeout', get_string('timeout', 'qtype_opaque'));
         $mform->setType('timeout', PARAM_INT);
-        $mform->setDefault('timeout', qtype_opaque_connection::DEFAULT_TIMEOUT);
+        $mform->setDefault('timeout', qtype_opaque_engine_manager::DEFAULT_TIMEOUT);
         $mform->addHelpButton('timeout', 'timeout', 'qtype_opaque');
 
         $mform->addElement('hidden', 'engineid');

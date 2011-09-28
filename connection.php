@@ -34,45 +34,34 @@ defined('MOODLE_INTERNAL') || die();
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class qtype_opaque_connection {
-    /** @var int timeout for SOAP calls, in seconds. */
-    const DEFAULT_TIMEOUT = 10; // Seconds.
 
     protected $questionbanks = array();
     protected $passkeysalt = '';
     protected $soapclient;
 
     /**
-     * Constructor.
+     * Constructor. Normally you should call
+     * {@link qtype_opaque_engine_manager::get_connection()} rather than calling
+     * this constructor directly.
      * @param object $engine information about the engine being connected to.
      */
-    protected function __construct($url, $timeout) {
-        $this->soapclient = new qtype_opaque_soap_client_with_timeout($url . '?wsdl', array(
-                    'soap_version'       => SOAP_1_1,
-                    'exceptions'         => true,
-                    'connection_timeout' => $timeout,
-                    'features'           => SOAP_SINGLE_ELEMENT_ARRAYS,
-                ));
-    }
-
-    /**
-     * @param object $engine an engine object.
-     * @return qtype_opaque_connection connection one of the question engine
-     *      servers of this $engine object picked at random.
-     */
-    public static function connect($engine) {
+    public function __construct($engine) {
         if (!empty($engine->urlused)) {
             $url = $engine->urlused;
         } else {
             $url = $engine->questionengines[array_rand($engine->questionengines)];
         }
 
-        $connection = new self($url, $engine->timeout);
-        $connection->questionbanks = $engine->questionbanks;
-        $connection->passkeysalt = $engine->passkey;
-
+        $this->soapclient = new qtype_opaque_soap_client_with_timeout($url . '?wsdl', array(
+                    'soap_version'       => SOAP_1_1,
+                    'exceptions'         => true,
+                    'connection_timeout' => $engine->timeout,
+                    'features'           => SOAP_SINGLE_ELEMENT_ARRAYS,
+                ));
         $engine->urlused = $url;
 
-        return $connection;
+        $this->questionbanks = $engine->questionbanks;
+        $this->passkeysalt = $engine->passkey;
     }
 
     /**

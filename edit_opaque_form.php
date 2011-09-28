@@ -71,9 +71,10 @@ class qtype_opaque_edit_form extends question_edit_form {
 
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
+        $enginemanager = qtype_opaque_engine_manager::get();
 
         // Check we can connect to this questoin engine.
-        $engine =  qtype_opaque_engine_manager::get()->load($data['engineid']);
+        $engine = $enginemanager->load($data['engineid']);
         if (is_string($engine)) {
             $errors['engineid'] = $engine;
         }
@@ -93,7 +94,7 @@ class qtype_opaque_edit_form extends question_edit_form {
         // also to get the default grade.
         if ($remoteidok) {
             try {
-                $metadata = qtype_opaque_connection::connect($engine)->get_question_metadata(
+                $metadata = $enginemanager->get_connection($engine)->get_question_metadata(
                         $data['remoteid'], $data['remoteversion']);
                 if (isset($metadata['questionmetadata']['#']['scoring'][0]['#']['marks'][0]['#'])) {
                     $this->_defaultmark = $metadata['questionmetadata']['#']['scoring']

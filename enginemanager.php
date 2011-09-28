@@ -34,10 +34,17 @@ defined('MOODLE_INTERNAL') || die();
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class qtype_opaque_engine_manager {
+    /** @var int timeout for SOAP calls, in seconds. */
+    const DEFAULT_TIMEOUT = 10; // Seconds.
+
+    protected static $instance = null;
 
     /** @return qtype_opaque_engine_manager get the engine manager. */
     public static function get() {
-        return new self();
+        if (is_null(self::$instance)) {
+            self::$instance = new self();
+        }
+        return self::$instance;
     }
 
     /**
@@ -92,7 +99,7 @@ class qtype_opaque_engine_manager {
         $transaction = $DB->start_delegated_transaction();
 
         if (empty($engine->timeout)) {
-            $engine->timeout = qtype_opaque_connection::DEFAULT_TIMEOUT;
+            $engine->timeout = self::DEFAULT_TIMEOUT;
         }
 
         if (!empty($engine->id)) {
@@ -209,5 +216,15 @@ class qtype_opaque_engine_manager {
         !array_diff($engine1->questionbanks, $engine2->questionbanks) &&
         !array_diff($engine2->questionbanks, $engine1->questionbanks);
         return $ans;
+    }
+
+    /**
+     * Connect to a particular question engine.
+     * @param object $engine the engine definition.
+     * @return qtype_opaque_connection the opaque connection that can be used
+     *      to make SOAP calls.
+     */
+    public function get_connection($engine) {
+        return new qtype_opaque_connection($engine);
     }
 }

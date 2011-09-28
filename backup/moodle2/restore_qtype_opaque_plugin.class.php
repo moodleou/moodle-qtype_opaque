@@ -77,7 +77,7 @@ class restore_qtype_opaque_plugin extends restore_qtype_plugin {
         if ($questioncreated) {
             // New question, insert.
             $question = (object) $data;
-            $question->engineid = $this->engine_manager()->find_or_create_engineid($engine);
+            $question->engineid = qtype_opaque_engine_manager::get()->find_or_create_engineid($engine);
             $question->questionid = $newquestionid;
 
             $DB->insert_record('question_opaque', $question);
@@ -96,15 +96,5 @@ class restore_qtype_opaque_plugin extends restore_qtype_plugin {
      */
     public function process_server($data) {
         // Do nothing. All the data is processed in process_opaque.
-    }
-
-    /**
-     * @return qtype_opaque_engine_manager an engine manager.
-     */
-    protected function engine_manager() {
-        if (is_null($this->enginemanager)) {
-            $this->enginemanager = new qtype_opaque_engine_manager();
-        }
-        return $this->enginemanager;
     }
 }

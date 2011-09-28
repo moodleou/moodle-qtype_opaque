@@ -41,7 +41,8 @@ $PAGE->set_title(get_string('testingengine', 'qtype_opaque'));
 $PAGE->navbar->add(get_string('testingengine', 'qtype_opaque'));
 
 // Load the engine definition.
-$engine = qtype_opaque_engine_manager::get()->load($engineid);
+$enginemanager = qtype_opaque_engine_manager::get();
+$engine = $enginemanager->load($engineid);
 
 // Do the test.
 echo $OUTPUT->header();
@@ -53,7 +54,7 @@ foreach ($engine->questionengines as $engineurl) {
 
     try {
         $engine->urlused = $engineurl;
-        $info = qtype_opaque_connection::connect($engine)->get_engine_info();
+        $info = $enginemanager->get_connection($engine)->get_engine_info();
         if (is_array($info) && isset($info['engineinfo']['#'])) {
             echo xml_to_dl($info['engineinfo']['#']);
         } else {
