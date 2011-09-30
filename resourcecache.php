@@ -92,7 +92,7 @@ class qtype_opaque_resource_cache {
     /**
      * File name used to store the CSS of the question, question session id is appended.
      */
-    function stylesheet_filename($questionsessionid) {
+    public function stylesheet_filename($questionsessionid) {
         return self::CSS_PREFIX . $questionsessionid . '.css';
     }
 

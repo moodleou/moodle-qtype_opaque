@@ -34,41 +34,51 @@ defined('MOODLE_INTERNAL') || die();
  */
 
 class qtype_opaque_cache_manager {
-    private static $manager;
+    /** @var array reference to where the data is acutally stored in the session. */
+    protected $cache;
+
+    /** @var qtype_opaque_cache_manager singleton instance. */
+    protected static $manager;
+
+    /**
+     * Constructor.
+     */
+    protected function __construct() {
+        global $SESSION;
+
+        if (!isset($SESSION->opaque_state_cache) ||
+                !is_array($SESSION->opaque_state_cache)) {
+            $SESSION->opaque_state_cache = array();
+        }
+
+        $this->cache = &$SESSION->opaque_state_cache;
+    }
 
     /**
      * Get the cache manager instance associated with the current
      * user session or create a new one if it does not exist.
      * 
-     * @return qtype_cache_manager the cache manager instance */
+     * @return qtype_cache_manager the cache manager instance
+     */
     public static function get() {
-        if(empty($class->manager))
+        if (empty($class->manager)) {
             $class->manager = new self();
-
-        return $class->manager;
-    }
-
-    protected function __construct() {
-        global $SESSION; // Just to be safe and not rely on superglobals
-
-        if(!isset($SESSION->opaque_state_cache) ||
-               !is_array($SESSION->opaque_state_cache)) {
-            $SESSION->opaque_state_cache = array();
         }
 
-        $this->cache = & $SESSION->opaque_state_cache;
+        return $class->manager;
     }
 
     /**
      * Load the cached state from the store.
      *
      * @param string $key a unique key for this cached entry
-     * @return mixed|null On success, a cached opaque state,
+     * @return object|null On success, a cached opaque state,
      *      null if there was no usable cached state to return.
      */
     public function load($key) {
-        if(!isset($this->cache[$key]))
+        if (!isset($this->cache[$key])) {
             return null;
+        }
 
         return $this->cache[$key];
     }
@@ -77,12 +87,10 @@ class qtype_opaque_cache_manager {
      * Save or update the cached state
      *
      * @param string $key a unique key for this cached entry
-     * @param mixed $state the opaque state to save
-     * @param mixed $scope of the storage (session, permanent)
-     *                     TODO Not implemented yet
+     * @param object $state the opaque state to save
      */
-    public function save($key, & $state, $scope = null) {
-        $this->cache[$key] = & $state;
+    public function save($key, $state) {
+        $this->cache[$key] = $state;
     }
 
     /**

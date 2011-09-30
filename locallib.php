@@ -55,7 +55,7 @@ define('OPAQUE_ATTEMPTS_UNSET', -99);
 function qtype_opaque_update_state(question_attempt $qa,
         question_attempt_step $pendingstep = null, question_display_options $options = null) {
 
-    $opaquestate = qtype_opaque_state::get($qa, $pendingstep);
+    $opaquestate = qtype_opaque_state::make($qa, $pendingstep);
     $opaquestate->update($qa, $pendingstep, $options);
 
     $opaquestate->xhtml = $opaquestate->get_xhtml();

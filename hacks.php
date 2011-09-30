@@ -26,6 +26,12 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Hacks used to clean-up the HTML.
+ * @param string $xhtml the HTML that came from the question engine.
+ * @param object $opaquestate the current Opaque state.
+ * @return string the cleaned-up HTML.
+ */
 function qtype_opaque_hacks_filter_xhtml($xhtml, $opaquestate) {
     // TODO this is a nasty hack. Flash uses & as a separator in the FlashVars string,
     // so we have to replce the &amp;s with %26s in this one place only. So for now
@@ -40,8 +46,9 @@ function qtype_opaque_hacks_filter_xhtml($xhtml, $opaquestate) {
     // but which does not work in Moodle. Actually, we remove any non-disabled
     // buttons, and the following script tag.
     // TODO think of a better way to do this.
-    if ($opaquestate->resultssequencenumber >= 0 || $opaquestate->questionended)
+    if ($opaquestate->resultssequencenumber >= 0 || $opaquestate->questionended) {
         $xhtml = qtype_opaque_hacks_strip_omact_buttons($xhtml);
+    }
 
     // TODO uncomment these lines when behaviour is updated
     //$browserclass = qtype_opaque_hacks_browser_type();
@@ -80,12 +87,18 @@ function qtype_opaque_hacks_browser_type() {
     return '';
 }
 
-function qtype_opaque_hacks_filter_response(&$response) {
+
+/**
+ * Hacks used to clean-up bits of the response.
+ * @param object $response the response.
+ * @return the updated response.
+ */
+function qtype_opaque_hacks_filter_response($response) {
     // Process the resources.
     // TODO remove this. Evil hack. IE cannot cope with : and other odd characters
     // in the name argument to window.open. Until we can deploy a fix to the
     // OpenMark servers, apply the fix to the JS code here.
-    if(isset($response->resources)) {
+    if (isset($response->resources)) {
         foreach ($response->resources as $key => $resource) {
             if ($resource->filename == 'script.js') {
                 $response->resources[$key]->content = preg_replace(
@@ -97,12 +110,14 @@ function qtype_opaque_hacks_filter_response(&$response) {
     }
 
     // Another nasty hack pending a permanent fix to OpenMark.
-    if(!empty($response->progressInfo)) {
+    if (!empty($response->progressInfo)) {
         $response->progressInfo = str_replace(
                 array('attempts', 'attempt'),
                 array('tries', 'try'),
                 $response->progressInfo);
     }
+
+    return $response;
 }
 
 /**
@@ -125,6 +140,8 @@ function qtype_opaque_hacks_get_submitted_data(question_attempt_step $step) {
 /**
  * Strip any buttons, followed by script tags, where the button has an id
  * containing _omact_, and is not disabled.
+ * @param string $xhtml the HTML that came from the question engine.
+ * @return string the cleaned-up HTML.
  */
 function qtype_opaque_hacks_strip_omact_buttons($xhtml) {
     $xhtml = preg_replace(
@@ -133,4 +150,3 @@ function qtype_opaque_hacks_strip_omact_buttons($xhtml) {
 
     return $xhtml;
 }
-?>

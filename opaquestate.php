@@ -26,17 +26,24 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+
 /**
  * Stores active OPAQUE question session and caches associated results
  *
  * @copyright  2011 Antti Andreimann
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 class qtype_opaque_state {
+    /** @var qtype_opaque_resource_cache */
+    protected $resourcecache;
 
-    protected $resourcecahce;
+    /** @var qtype_opaque_cache_manager */
+    protected $statecache;
+
+    /** @var qtype_opaque_connection */
     protected $connection;
+
+    /** @var array tokens taht should be replaced in the HTML. */
     protected $replaces;
 
     /**
@@ -48,7 +55,7 @@ class qtype_opaque_state {
      * @param question_attempt_step $pendingstep (optional) a pending initial step
      * @return qtype_opaque_state an opaque state object
      */
-    public static function get($qa, $pendingstep = null) {
+    public static function make($qa, $pendingstep = null) {
         return new self($qa, $pendingstep);
     }
 
@@ -62,11 +69,13 @@ class qtype_opaque_state {
      * @return string a unique hash code for the question attempt
      *
      */
-    protected static function calculateCacheKey($qa, $pendingstep = null) {
-        $firststep = qtype_opaque_state::find_step(0, $qa, $pendingstep);
+    protected static function calculate_cache_key($qa, $pendingstep = null) {
+        $firststep = self::find_step(0, $qa, $pendingstep);
 
-        if(is_null($firststep))
-            throw new coding_exception('Unable to find the fist step to extract initial parameters from');
+        if (is_null($firststep)) {
+            throw new coding_exception(
+                    'Unable to find the fist step to extract initial parameters from');
+        }
 
         // We expect the question that is attempted to be stored in the database.
         // Even if it is not the case, prepending an empty id to the data
@@ -81,10 +90,10 @@ class qtype_opaque_state {
          */
 
         // Extract initialization data from the first step
-
         $randomseed = $firststep->get_behaviour_var('_randomseed');
-        if(is_null($randomseed))
+        if (is_null($randomseed)) {
             throw new coding_exception('No random seed in first step');
+        }
         $initdata .= $randomseed;
 
         $initdata .= $firststep->get_behaviour_var('_userid');
@@ -115,17 +124,19 @@ class qtype_opaque_state {
 
     /**
      * Create a new cached state and link it to a question attempt.
-     * 
+     *
      * @param question_attempt $qa the question attempt to use
      * @param question_attempt_step $pendingstep (optional) a pending initial step
      */
     protected function __construct($qa, $pendingstep) {
+        $this->statecache = qtype_opaque_cache_manager::get();
         $this->load_state($qa, $pendingstep);
 
-        if(!$this->validateState($qa))
+        if (!$this->is_valid($qa)) {
             $this->invalidate();
+        }
 
-        if(empty($this->state)) {
+        if (empty($this->state)) {
             $this->new_state($qa, $pendingstep);
         }
 
@@ -135,27 +146,27 @@ class qtype_opaque_state {
 
     /**
      * Find a state associated with this question attempt from the cache.
-     *
      * @param question_attempt $qa the question attempt to use
      * @param question_attempt_step $pendingstep (optional) a pending initial step
      */
     protected function load_state($qa, $pendingstep) {
-        $key = qtype_opaque_state::calculateCacheKey($qa, $pendingstep);
-        $this->state = qtype_opaque_cache_manager::get()->load($key);
+        $key = self::calculate_cache_key($qa, $pendingstep);
+        $this->state = $this->statecache->load($key);
     }
 
     /**
      * Check if the cached state is valid for a question attempt.
-     * 
      * @param question_attempt $qa the question attempt to use
      * @return true if cached state is valid, false othervise
      */
-    public function validateState($qa) {
-        if(empty($this->state))
+    public function is_valid($qa) {
+        if (empty($this->state)) {
             return false;
+        }
 
-        if($this->state->hash != qtype_opaque_state::calculateHashCode($qa))
+        if ($this->state->hash != self::calculate_hash_code($qa)) {
             return false;
+        }
 
         return true;
     }
@@ -165,11 +176,12 @@ class qtype_opaque_state {
      * Close a question session if it's still active.
      */
     public function invalidate() {
-        if(empty($this->state))
+        if (empty($this->state)) {
             return; // Already invalidated
+        }
 
         // If there is some question session active, try to stop it ...
-        if(!empty($this->state->questionsessionid)) {
+        if (!empty($this->state->questionsessionid)) {
             try {
                 $this->get_connection()->stop($this->state->questionsessionid);
             } catch (SoapFault $e) {
@@ -177,7 +189,7 @@ class qtype_opaque_state {
             }
         }
 
-        qtype_opaque_cache_manager::get()->delete($this->state->cacheKey);
+        $this->statecache->delete($this->state->cacheKey);
         $this->state = null;
     }
 
@@ -189,17 +201,13 @@ class qtype_opaque_state {
      */
     public function do_start($qa, $pendingstep, $options = null) {
         $this->state->nameprefix = $qa->get_field_prefix();
-        $step = qtype_opaque_state::find_step(0, $qa, $pendingstep);
+        $step = self::find_step(0, $qa, $pendingstep);
         $resourcecache = $this->get_resource_cache();
 
-        $startreturn = $this->get_connection()->start($this->state->remoteid, $this->state->remoteversion,
+        $startreturn = $this->get_connection()->start(
+                $this->state->remoteid, $this->state->remoteversion,
                 $step->get_all_data(), $resourcecache->list_cached_resources(),
                 $options);
-
-        if(isset($startreturn->protocolVersion))
-            $this->state->remoteProtocolVersion = $startreturn->protocolVersion;
-        else
-            $this->state->remoteProtocolVersion = 0;
 
         $this->extract_stuff_from_response($startreturn, $resourcecache);
         $this->state->sequencenumber++;
@@ -215,17 +223,17 @@ class qtype_opaque_state {
      */
     public function do_process($qa, $pendingstep = null) {
         $this->state->nameprefix = $qa->get_field_prefix();
-        $step = qtype_opaque_state::find_step($this->state->sequencenumber + 1, $qa, $pendingstep);
+        $step = self::find_step($this->state->sequencenumber + 1, $qa, $pendingstep);
         $resourcecache = $this->get_resource_cache();
 
         $data = $step->get_submitted_data();
 
         // Apply OpenMark hacks
-        if($this->state->remoteProtocolVersion < 1)
-            $data = qtype_opaque_hacks_get_submitted_data($step);
+        $data = qtype_opaque_hacks_get_submitted_data($step);
 
         try {
-            $processreturn = $this->get_connection()->process($this->state->questionsessionid, $data);
+            $processreturn = $this->get_connection()->process(
+                    $this->state->questionsessionid, $data);
         } catch (SoapFault $e) {
             $this->invalidate();
             throw $e;
@@ -234,12 +242,13 @@ class qtype_opaque_state {
         if (!empty($processreturn->results)) {
             $this->state->results = $processreturn->results;
 
-            // FIXME is the following line a programming bug or a clever hack? 
+            // FIXME is the following line a programming bug or a clever hack?
             $this->state->resultssequencenumber = $this->state->sequencenumber + 1;
         }
 
         if ($processreturn->questionEnd) {
             $this->state->questionended = true;
+
             // TODO maybe we should call stop as well?
             unset($this->state->questionsessionid);
 
@@ -273,7 +282,7 @@ class qtype_opaque_state {
         }
 
         // If the engine is ahead of us we must close the session and start over
-        if($this->state->sequencenumber > $targetseq) {
+        if ($this->state->sequencenumber > $targetseq) {
             $this->invalidate();
             $this->new_state($qa, $pendingstep);
         }
@@ -290,7 +299,7 @@ class qtype_opaque_state {
         //      then force web browser to poll for more with a redirect.
         while ($this->state->sequencenumber < $targetseq) {
             $this->do_process($qa, $pendingstep);
-            if($this->state->questionended) {
+            if ($this->state->questionended) {
                 $this->state->sequencenumber = $targetseq;
                 break;
             }
@@ -298,17 +307,17 @@ class qtype_opaque_state {
     }
 
     /**
-     * Get a properly filtered question XHTML 
+     * Get a properly filtered question XHTML.
+     * @return string the HTML with %% tokens replaced.
      */
     public function get_xhtml() {
-        $replaces = $this->get_replaces();
 
         // Process the XHTML, replacing the strings that need to be replaced.
+        $replaces = $this->get_replaces();
         $xhtml = str_replace(array_keys($replaces), $replaces, $this->state->xhtml);
 
         // Apply OpenMark hacks
-        if($this->state->remoteProtocolVersion < 1)
-            $xhtml = qtype_opaque_hacks_filter_xhtml($xhtml, $this->state);
+        $xhtml = qtype_opaque_hacks_filter_xhtml($xhtml, $this->state);
 
         return $xhtml;
     }
@@ -317,8 +326,7 @@ class qtype_opaque_state {
      * Get a piece of html that should be included in <head>
      */
     public function get_head_xhtml() {
-        $replaces = $this->get_replaces();
-        return str_replace(array_keys($replaces), $replaces, $this->state->head);
+        return str_replace(array_keys($replaces), $this->get_replaces(), $this->state->head);
     }
 
     public function get_results() {
@@ -352,13 +360,12 @@ class qtype_opaque_state {
         $rv->remoteid              = $question->remoteid;
         $rv->remoteversion         = $question->remoteversion;
         $rv->nameprefix            = $qa->get_field_prefix();
-        $rv->hash                  = qtype_opaque_state::calculateHashCode($qa);
-        $rv->cacheKey              = qtype_opaque_state::calculateCacheKey($qa, $pendingstep);
+        $rv->hash                  = self::calculate_hash_code($qa);
+        $rv->cacheKey              = self::calculate_cache_key($qa, $pendingstep);
         $rv->engine                = qtype_opaque_engine_manager::get()->load($question->engineid);
         $rv->questionended         = false;
         $rv->sequencenumber        = -1;
         $rv->resultssequencenumber = -1;
-        $rv->remoteProtocolVersion = 0;
         $rv->xhtml                 = null;
         $rv->questionsessionid     = null;
         $rv->headXHTML             = null;
@@ -367,7 +374,7 @@ class qtype_opaque_state {
         $rv->progressinfo          = null;
 
         $this->state = $rv;
-        qtype_opaque_cache_manager::get()->save($rv->cacheKey, $this->state);
+        $this->statecache->save($rv->cacheKey, $this->state);
     }
 
     /**
@@ -380,26 +387,12 @@ class qtype_opaque_state {
      * @return string a unique hash code
      *
      */
-    protected static function calculateHashCode($qa) {
-        $question = $qa->get_question();
-
-        $engineid      = $question->engineid;
-        $remoteid      = $question->remoteid;
-        $remoteversion = $question->remoteversion;
-
-        // validate that required data is present
-        if(empty($engineid))
-            throw new coding_exception('engineid is missing from question');
-        if(empty($remoteid))
-            throw new coding_exception('remoteid is missing from question');
-        if(empty($remoteversion))
-            throw new coding_exception('remoteversion is missing from question');
-
-        $data = $engineid . $remoteid . $remoteversion;
+    protected static function calculate_hash_code($qa) {
 
         // TODO: Add random seed once it becomes available
 
-        return md5($data);
+        $question = $qa->get_question();
+        return md5($question->engineid . $question->remoteid . $question->remoteversion);
     }
 
     /**
@@ -408,10 +401,11 @@ class qtype_opaque_state {
      * @return qtype_opaque_resource_cache
      */
     protected function get_resource_cache() {
-        if(empty($this->resourcecache))
+        if (empty($this->resourcecache)) {
             $this->resourcecache = new qtype_opaque_resource_cache(
                     $this->state->engineid, $this->state->remoteid,
                     $this->state->remoteversion);
+        }
 
         return $this->resourcecache;
     }
@@ -422,8 +416,10 @@ class qtype_opaque_state {
      * @return mixed an opaque connection
      */
     protected function get_connection() {
-        if(empty($this->connection))
-            $this->connection = qtype_opaque_engine_manager::get()->get_connection($this->state->engine);
+        if (empty($this->connection)) {
+            $this->connection = qtype_opaque_engine_manager::get()->get_connection(
+                    $this->state->engine);
+        }
 
         return $this->connection;
     }
@@ -435,8 +431,9 @@ class qtype_opaque_state {
      * @return array a map of replacements
      */
     protected function get_replaces() {
-        if(!empty($this->replaces))
+        if (!empty($this->replaces)) {
             return $this->replaces;
+        }
 
         $this->replaces = array(
             '%%RESOURCES%%' => $this->get_resource_cache()->file_url(''),
@@ -462,14 +459,14 @@ class qtype_opaque_state {
             qtype_opaque_resource_cache $resourcecache) {
 
         // Apply OpenMark hacks
-        if($this->state->remoteProtocolVersion < 1)
-            qtype_opaque_hacks_filter_response($response);
+        $response = qtype_opaque_hacks_filter_response($response);
 
         $this->state->xhtml = $response->XHTML;
 
         // Record the session id.
-        if (!empty($response->questionSession))
+        if (!empty($response->questionSession)) {
             $this->state->questionsessionid = $response->questionSession;
+        }
 
         // Process the CSS
         if (!empty($response->CSS)) {
@@ -483,22 +480,25 @@ class qtype_opaque_state {
         }
 
         // Process the resources.
-        if(isset($response->resources))
+        if (isset($response->resources)) {
             $resourcecache->cache_resources($response->resources);
-     
-        // Save the progress info. 
-        if(isset($response->progressInfo))
+        }
+
+        // Save the progress info.
+        if (isset($response->progressInfo)) {
             $this->state->progressinfo = $response->progressInfo;
+        }
 
         // Store any head HTML.
-        if (!empty($response->head))
+        if (!empty($response->head)) {
             $this->state->headXHTML = $response->head;
+        }
 
         return true;
     }
 
-    // TODO option string is currently not used for anything
-    protected function make_optionstring($options) {
+    protected function make_option_string($options) {
+        // TODO option string is currently not used for anything
         if (!is_null($options)) {
             $optionstring = implode('|', array(
                 (int) $options->readonly,
