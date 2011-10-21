@@ -77,7 +77,7 @@ class restore_qtype_opaque_plugin extends restore_qtype_plugin {
         if ($questioncreated) {
             // New question, insert.
             $question = (object) $data;
-            $question->engineid = qtype_opaque_engine_manager::get()->find_or_create_engineid($engine);
+            $question->engineid = qtype_opaque_engine_manager::get()->find_or_create($engine);
             $question->questionid = $newquestionid;
 
             $DB->insert_record('question_opaque', $question);
