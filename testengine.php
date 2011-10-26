@@ -26,7 +26,7 @@
 
 require_once(dirname(__FILE__) . '/../../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
-require_once(dirname(__FILE__) . '/locallib.php');
+require_once($CFG->dirroot . '/question/type/opaque/enginemanager.php');
 
 $engineid = required_param('engineid', PARAM_INT);
 
@@ -54,7 +54,7 @@ foreach ($engine->questionengines as $engineurl) {
 
     try {
         $engine->urlused = $engineurl;
-        $info = $enginemanager->get_connection($engine)->get_engine_info();
+        $info = $enginemanager->get_engine_info($engine);
         if (is_array($info) && isset($info['engineinfo']['#'])) {
             echo xml_to_dl($info['engineinfo']['#']);
         } else {
@@ -62,6 +62,7 @@ foreach ($engine->questionengines as $engineurl) {
             echo html_writer::tag('<pre>', s($info));
             $ok = false;
         }
+
     } catch (SoapFault $sf) {
         echo $OUTPUT->notification(get_string('testconnectionfailed', 'qtype_opaque'));
         echo html_writer::tag('<pre>', s($sf));

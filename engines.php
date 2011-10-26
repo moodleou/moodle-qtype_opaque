@@ -26,7 +26,7 @@
 
 require_once(dirname(__FILE__) . '/../../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
-require_once(dirname(__FILE__) . '/locallib.php');
+require_once($CFG->dirroot . '/question/type/opaque/enginemanager.php');
 
 // Check the user is logged in.
 require_login();
@@ -35,13 +35,17 @@ require_capability('moodle/question:config', $context);
 
 admin_externalpage_setup('qtypesettingopaque');
 
+$enginemanager = qtype_opaque_engine_manager::get();
+
 // See if any action was requested.
 $delete = optional_param('delete', 0, PARAM_INT);
 if ($delete) {
-    $engine = $DB->get_record('question_opaque_engines', array('id' => $delete), '*', MUST_EXIST);
+    $engine = $enginemanager->load($delete);
+
     if (optional_param('confirm', false, PARAM_BOOL) && confirm_sesskey()) {
-        qtype_opaque_engine_manager::get()->delete($delete);
+        $enginemanager->delete($delete);
         redirect($PAGE->url);
+
     } else {
         echo $OUTPUT->header();
         echo $OUTPUT->confirm(get_string('deleteconfigareyousure', 'qtype_opaque',
@@ -50,12 +54,12 @@ if ($delete) {
                         array('delete' => $delete, 'confirm' => 'yes', 'sesskey' => sesskey())),
                 $PAGE->url);
         echo $OUTPUT->footer();
-        exit;
+        die();
     }
 }
 
 // Get the list of configured engines.
-$engines = $DB->get_records('question_opaque_engines', array(), 'id ASC');
+$engines = $enginemanager->choices();
 
 // Header.
 echo $OUTPUT->header();
@@ -68,16 +72,16 @@ if ($engines) {
     $stredit = get_string('edit');
     $strdelete = get_string('delete');
 
-    foreach ($engines as $engine) {
-        echo html_writer::tag('p', format_string($engine->name) .
+    foreach ($engines as $id => $name) {
+        echo html_writer::tag('p', format_string($name) .
                 $OUTPUT->action_icon(new moodle_url('/question/type/opaque/testengine.php',
-                        array('engineid' => $engine->id)),
+                        array('engineid' => $id)),
                         new pix_icon('t/preview', $strtest)) .
                 $OUTPUT->action_icon(new moodle_url('/question/type/opaque/editengine.php',
-                        array('engineid' => $engine->id)),
+                        array('engineid' => $id)),
                         new pix_icon('t/edit', $stredit)) .
                 $OUTPUT->action_icon(new moodle_url('/question/type/opaque/engines.php',
-                        array('delete' => $engine->id)),
+                        array('delete' => $id)),
                         new pix_icon('t/delete', $strdelete)));
     }
 } else {

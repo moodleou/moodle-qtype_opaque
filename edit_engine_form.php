@@ -28,7 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/formslib.php');
 require_once($CFG->libdir . '/validateurlsyntax.php');
-require_once($CFG->dirroot . '/question/type/opaque/locallib.php');
+require_once($CFG->dirroot . '/question/type/opaque/enginemanager.php');
 
 
 /**
@@ -38,6 +38,10 @@ require_once($CFG->dirroot . '/question/type/opaque/locallib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class qtype_opaque_engine_edit_form extends moodleform {
+
+    /** @var int timeout for SOAP calls, in seconds. */
+    const DEFAULT_TIMEOUT = 10; // Seconds.
+
     protected function definition() {
         $mform = $this->_form;
 
@@ -62,7 +66,8 @@ class qtype_opaque_engine_edit_form extends moodleform {
 
         $mform->addElement('text', 'timeout', get_string('timeout', 'qtype_opaque'));
         $mform->setType('timeout', PARAM_INT);
-        $mform->setDefault('timeout', qtype_opaque_engine_manager::DEFAULT_TIMEOUT);
+        $mform->setDefault('timeout', self::DEFAULT_TIMEOUT);
+        $mform->addRule('timeout', get_string('required'), 'required', null, 'client');
         $mform->addHelpButton('timeout', 'timeout', 'qtype_opaque');
 
         $mform->addElement('hidden', 'engineid');

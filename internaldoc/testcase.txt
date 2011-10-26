@@ -1,0 +1,164 @@
+This file contains a sequence of test cases for most ForumNG features.
+
+Each section has a unique (within this test case) three letter code and the
+steps are numbered so that the location where a failure occurs can be reported.
+
+Steps are shown in the following format:
+
+XXX01 / U.S1 [change]
+  Do something
+  - Check something
+
+The unique step number is followed by the user that you should be logged
+in as for that step. If the user changes from the previous step, the word
+[Change] will be noted.
+
+Some steps don't have specific items to check. In that case, the check
+'passes' if there are no errors or warnings while completing the task.
+
+
+Initial set-up
+==============
+
+Install qtype_opaque, qbehaviour_opaque and local_testopaqueqe.
+
+For everything after configuration (CFG), you need an engine as in CFG02 set up.
+
+It is probably worth having a test course with an 'Opaque' question category
+set up in its question bank.
+
+
+Configuration
+=============
+
+CFG01 / admin
+  Go to Site administration ► Plugins ► Question types ► Opaque.
+
+CFG02 / admin
+  Click Add another engine, enter
+      Name: Test engine
+      Question engine URLs: http://url.of.your/moodle/local/testopaqueqe/service.php
+      Connection time-out (seconds): 2
+  Then click Save changes.
+  - the new engine should appear in the list.
+
+CFG03 / admin
+  Click Add another engine. Click cancel.
+  - the list should not have changed.
+
+CFG04 / admin
+  Click the edit icon next to the Test engine created in step CFG02, change
+  something, then click Save changes. Click edit again
+  - the changes you made were saved, and are now re-displayed.
+
+CFG05 / admin
+  Change something, then click Cancel. Click edit again
+  - the changes you just made should have been discarded.
+
+CFG06 / admin
+  Click the test connection icon.
+  - information should be displayed, with the message Connection test passed.
+
+CFG07 / admin
+  Click continue, then edit the engine to make engine URL something invalid like http://example.com/.
+
+CFG08 / admin
+  Click the test connection icon.
+  - you should see a test failed message. It will be a PHP fatal error. Nice.
+
+CFG09 / admin
+  Click continue, then click the delete icon next to the test engine.
+  - you should be asked if you are sure you want to delete it.
+
+CFG10 / admin
+  Click continue.
+  - The test engine should be gone from the list.
+
+
+Editing a question
+==================
+
+EDT01 / admin
+  Go to the question bank in any course, click Create a new question, select
+  Opaque, and click Next.
+  - you should be on the Adding an Opaque question form.
+
+EDT02 / admin
+  Enter
+      Question name: Test opaque question
+      Question engine: Test engine
+      Question id: test
+      Question version: 1.0
+  then click Save changes.
+  - the new question should appear in the quetsion bank.
+
+EDT03 / admin
+  Click its edit icon
+  - all the information you entered should be re-displayed accurately.
+
+EDT04 / admin
+  Make a trivial change, and click save, then re-edit.
+  - the change should have been recorded.
+
+EDT05 / admin
+  Click save again, then click the Preview icon next to the Test opaque question.
+  - the preview pop-up should open, displaying the test question that has an
+    irritating animated .gif and lots of technical information.
+
+EDT06 / admin
+  Click submit
+  - the display should update, and it should now say Try 2 under Question 1 in the grey info box.
+
+EDT07 / admin
+  Set the mark to 2.00 and click Finish
+  - the question should be re-displayed read-only, with state Partially correct and Mark 2.
+
+EDT08 / admin
+  Click Start again, then Throw a SOAP fault.
+  - you should see an error including "Test opaque engine failing on demand."
+
+EDT09 / admin
+  Click continue.
+  - You should get back to the preview in exactly the same state as before the fault.
+
+EDT10 / admin
+  Enter a delay of 3 seconds, then click Submit
+  - You should see an error like Operation timed out after 2 seconds with 0 bytes received.
+
+EDT11 / admin
+  Close the preview window.
+
+EDT12 / admin
+  Create a new Opaque question with 
+      Question name: Editing failure
+      Question engine: Test engine
+      Question id: metadata.fail
+      Question version: 1.0
+  then click Save changes.
+  - You should see a validation error like "The question engine was not able to
+    return the maximum grades for this question ...".
+
+EDT13 / admin
+  Change the Question id to metadata.slow, and version to 3.0 and click save again.
+  - You should see a validation error about the time-out.
+
+EDT14 / admin
+  Change the Question version to 1.99 and click save again.
+  - The question should save.
+
+EDT15 / admin
+  Re-edit, and change Question id to start.slow, and version to 3.0 and click save again.
+
+EDT16 / admin
+  Preview the Editing failure question.
+  - You should get a failure.
+
+
+Testing in a quiz
+=================
+
+QUI01 / admin
+  Create a test quiz in interactive behaviour. Add the Test opaque question.
+
+QUI02 / admin
+  Preview the quiz. Interact with it a bit, and verify it works as expected.

@@ -52,5 +52,41 @@ function xmldb_qtype_opaque_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2011092600, 'qtype', 'opaque');
     }
 
+    if ($oldversion < 2011102400) {
+
+        // Define table question_opaque to be renamed to qtype_opaque.
+        $table = new xmldb_table('question_opaque');
+
+        // Launch rename table for question_opaque.
+        $dbman->rename_table($table, 'qtype_opaque_options');
+
+        // qtype_opaque savepoint reached.
+        upgrade_plugin_savepoint(true, 2011102400, 'qtype', 'opaque');
+    }
+
+    if ($oldversion < 2011102401) {
+
+        // Define table question_opaque_engines to be renamed to qtype_opaque_engines.
+        $table = new xmldb_table('question_opaque_engines');
+
+        // Launch rename table for question_opaque_engines.
+        $dbman->rename_table($table, 'qtype_opaque_engines');
+
+        // qtype_opaque savepoint reached.
+        upgrade_plugin_savepoint(true, 2011102401, 'qtype', 'opaque');
+    }
+
+    if ($oldversion < 2011102402) {
+
+        // Define table question_opaque_servers to be renamed to qtype_opaque_servers.
+        $table = new xmldb_table('question_opaque_servers');
+
+        // Launch rename table for question_opaque_servers.
+        $dbman->rename_table($table, 'qtype_opaque_servers');
+
+        // qtype_opaque savepoint reached.
+        upgrade_plugin_savepoint(true, 2011102402, 'qtype', 'opaque');
+    }
+
     return true;
 }

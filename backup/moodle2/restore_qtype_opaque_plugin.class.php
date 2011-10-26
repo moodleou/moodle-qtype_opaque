@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot . '/question/type/opaque/locallib.php');
+require_once($CFG->dirroot . '/question/type/opaque/enginemanager.php');
 
 
 /**
@@ -80,7 +80,7 @@ class restore_qtype_opaque_plugin extends restore_qtype_plugin {
             $question->engineid = qtype_opaque_engine_manager::get()->find_or_create($engine);
             $question->questionid = $newquestionid;
 
-            $DB->insert_record('question_opaque', $question);
+            $DB->insert_record('qtype_opaque_options', $question);
         }
     }
 

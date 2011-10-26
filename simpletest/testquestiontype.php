@@ -26,6 +26,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+require_once($CFG->libdir . '/xmlize.php');
 require_once($CFG->libdir . '/questionlib.php');
 require_once($CFG->dirroot . '/question/type/opaque/questiontype.php');
 require_once($CFG->dirroot . '/question/format/xml/format.php');
@@ -48,7 +49,7 @@ class qtype_opaque_engine_manager_mock extends qtype_opaque_engine_manager {
         if (isset($this->knownengines[$engineid])) {
             return $this->knownengines[$engineid];
         } else {
-            throw new dml_missing_record_exception('question_opaque_servers',
+            throw new dml_missing_record_exception('qtype_opaque_servers',
                     '', array('id' => $engineid));
         }
     }

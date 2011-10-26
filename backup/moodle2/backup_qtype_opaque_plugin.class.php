@@ -59,15 +59,15 @@ class backup_qtype_opaque_plugin extends backup_qtype_plugin {
         $engine->add_child($server);
 
         // set source to populate the data
-        $opaque->set_source_table('question_opaque',
+        $opaque->set_source_table('qtype_opaque_options',
                 array('questionid' => backup::VAR_PARENTID));
         $engine->set_source_sql('
                 SELECT e.*
-                FROM {question_opaque_engines} e
-                JOIN {question_opaque} qo ON qo.engineid = e.id
+                FROM {qtype_opaque_engines} e
+                JOIN {qtype_opaque_options} qo ON qo.engineid = e.id
                 WHERE qo.id = ?',
                 array(backup::VAR_PARENTID));
-        $server->set_source_table('question_opaque_servers',
+        $server->set_source_table('qtype_opaque_servers',
                 array('engineid' => backup::VAR_PARENTID));
 
         return $plugin;

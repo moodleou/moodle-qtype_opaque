@@ -26,7 +26,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once(dirname(__FILE__) . '/locallib.php');
+require_once($CFG->dirroot . '/question/type/opaque/enginemanager.php');
 
 
 /**
@@ -58,7 +58,7 @@ class qtype_opaque extends question_type {
     }
 
     public function extra_question_fields() {
-        return array('question_opaque', 'engineid', 'remoteid', 'remoteversion');
+        return array('qtype_opaque_options', 'engineid', 'remoteid', 'remoteversion');
     }
 
     public function save_question($question, $form) {

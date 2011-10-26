@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Unit tests for (some of) ../locallib.php.
+ * Unit tests for (some of) ../enginemanager.php.
  *
  * @package    qtype
  * @subpackage opaque
@@ -28,13 +28,13 @@ defined('MOODLE_INTERNAL') || die();
 
 
 /**
- * Unit tests for (some of) ../locallib.php.
+ * Unit tests for (some of) ../enginemanager.php.
  *
  * @copyright  2008 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class qtype_opaque_locallib_test extends UnitTestCase {
-    public function test_is_same_engine() {
+class qtype_opaque_engine_manager_test extends UnitTestCase {
+    public function test_is_same() {
         $manager = new qtype_opaque_engine_manager();
 
         $engine1 = new stdClass();

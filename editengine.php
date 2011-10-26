@@ -26,8 +26,8 @@
 
 require_once(dirname(__FILE__) . '/../../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
-require_once(dirname(__FILE__) . '/locallib.php');
-require_once(dirname(__FILE__) . '/edit_engine_form.php');
+require_once($CFG->dirroot . '/question/type/opaque/enginemanager.php');
+require_once($CFG->dirroot . '/question/type/opaque/edit_engine_form.php');
 
 $engineid = optional_param('engineid', 0, PARAM_INT);
 

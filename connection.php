@@ -26,13 +26,16 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+require_once($CFG->libdir . '/xmlize.php');
 
-// You can set
-// $CFG->qtype_opaque_soap_class = 'qtype_opaque_soap_server_with_logging';
+
+// In config.php, you can set
+// $CFG->qtype_opaque_soap_class = 'qtype_opaque_soap_client_with_logging';
 // To log every SOAP call in huge detail. Lots are writted to moodledata/temp.
 
 /**
- * Wraps the SOAP connection to the question engine.
+ * Wraps the SOAP connection to the question engine, exposing the methods used
+ * when handling question and engine metatdata.
  *
  * @copyright  2011 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -118,53 +121,6 @@ class qtype_opaque_connection {
                 $remoteid, $remoteversion, $this->question_base_url());
         return xmlize($getmetadataresult);
     }
-
-    /**
-     * @param string $remoteid identifies the question.
-     * @param string $remoteversion identifies the specific version of the quetsion.
-     * @param aray $data feeds into the initialParams.
-     * @param question_display_options|null $options controls how the question is displayed.
-     * @return object and Opaque StartReturn structure.
-     */
-    public function start($remoteid, $remoteversion, $data, $cached_resources,
-            question_display_options $options = null) {
-
-        $initialparams = array(
-            'randomseed' => $data['-_randomseed'],
-            'userid' => $data['-_userid'],
-            'language' => $data['-_language'],
-            'passKey' => $this->generate_passkey($data['-_userid']),
-            'preferredbehaviour' => $data['-_preferredbehaviour'],
-        );
-
-        if (!is_null($options)) {
-            $initialparams['display_readonly'] = (int) $options->readonly;
-            $initialparams['display_marks'] = (int) $options->marks;
-            $initialparams['display_markdp'] = (int) $options->markdp;
-            $initialparams['display_correctness'] = (int) $options->correctness;
-            $initialparams['display_feedback'] = (int) $options->feedback;
-            $initialparams['display_generalfeedback'] = (int) $options->generalfeedback;
-        }
-
-        return $this->soapclient->start($remoteid, $remoteversion, $this->question_base_url(),
-                array_keys($initialparams), array_values($initialparams), $cached_resources);
-    }
-
-    /**
-     * @param string $questionsessionid the question session.
-     * @param array $respones the post date to process.
-     */
-    public function process($questionsessionid, $response) {
-        return $this->soapclient->process($questionsessionid,
-                array_keys($response), array_values($response));
-    }
-
-    /**
-     * @param string $questionsessionid the question session to stop.
-     */
-    public function stop($questionsessionid) {
-        $this->soapclient->stop($questionsessionid);
-    }
 }
 
 
@@ -243,7 +199,7 @@ class qtype_opaque_soap_client_with_timeout extends SoapClient {
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  */
-class qtype_opaque_soap_server_with_logging extends qtype_opaque_soap_client_with_timeout {
+class qtype_opaque_soap_client_with_logging extends qtype_opaque_soap_client_with_timeout {
     /*
      * (non-PHPdoc)
      * @see SoapClient::__soapCall()
