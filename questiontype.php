@@ -89,6 +89,7 @@ class qtype_opaque extends question_type {
         $expout .= "      <name>\n" . $format->writetext($engine->name, 4) . "      </name>\n";
         $expout .= "      <passkey>\n" . $format->writetext($engine->passkey, 4) .
                 "      </passkey>\n";
+        $expout .= "      <timeout>" . $engine->timeout . "</timeout>\n";
         foreach ($engine->questionengines as $qe) {
             $expout .= "      <qe>\n" . $format->writetext($qe, 4) . "      </qe>\n";
         }
@@ -120,6 +121,10 @@ class qtype_opaque extends question_type {
         $engine = new stdClass();
         $engine->name = $format->import_text($enginedata['#']['name'][0]['#']['text']);
         $engine->passkey = $format->import_text($enginedata['#']['passkey'][0]['#']['text']);
+        $engine->timeout = $format->getpath($enginedata, array('#', 'timeout', 0, '#'), null);
+        if (empty($engine->timeout)) {
+            unset($engine->timeout); // So that we use the default defined in the DB.
+        }
         $engine->questionengines = array();
         $engine->questionbanks = array();
         if (isset($enginedata['#']['qe'])) {

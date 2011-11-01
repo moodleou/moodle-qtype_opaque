@@ -50,7 +50,7 @@ class backup_qtype_opaque_plugin extends backup_qtype_plugin {
         // Now create the qtype own structures
         $opaque = new backup_nested_element('opaque', array('id'), array(
             'remoteid', 'remoteversion'));
-        $engine = new backup_nested_element('engine', array('id'), array('name', 'passkey'));
+        $engine = new backup_nested_element('engine', array('id'), array('name', 'passkey', 'timeout'));
         $server = new backup_nested_element('server', array('type'), array('url'));
 
         // Now the own qtype tree
