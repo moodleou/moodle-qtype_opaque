@@ -256,6 +256,7 @@ class qtype_opaque_test extends UnitTestCase {
         $engine->questionengines = array('http://example.com/');
         $engine->questionbanks = array();
         $engine->passkey = 'secret';
+        $engine->timeout = 10;
         $manager->add_test_engine(123, $engine);
 
         $qdata = new stdClass();
@@ -302,6 +303,7 @@ class qtype_opaque_test extends UnitTestCase {
       <passkey>
         <text>secret</text>
       </passkey>
+      <timeout>10</timeout>
       <qe>
         <text>http://example.com/</text>
       </qe>
