@@ -21,14 +21,14 @@ This question behaviour also requires the Opaque question type to be installed.
 
 To install using git, type this command in the root of your Moodle install
     git clone -b MOODLE_21_STABLE git://github.com/moodleou/moodle-qtype_opaque.git question/type/opaque
-    git clone -b MOODLE_21_STABLE git://github.com/moodleou/moodle-qbehaviour_opaque.git question/behaviour/opaque
+    git clone git://github.com/moodleou/moodle-qbehaviour_opaque.git question/behaviour/opaque
 Then add question/type/opaque and question/behaviour/opaque to your git ignore.
 
 Alternatively, download the zip from
     https://github.com/moodleou/moodle-qtype_opaque/zipball/MOODLE_21_STABLE
 unzip it into the question/type folder, and then rename the new
 folder to opaque. Then download the zip
-    https://github.com/moodleou/moodle-qbehaviour_opaque/zipball/MOODLE_21_STABLE
+    https://github.com/moodleou/moodle-qbehaviour_opaque/zipball/master
 unzip it into the question/behaviour folder, and then rename the new
 folder to opaque.
 
