@@ -80,7 +80,7 @@ class qtype_opaque extends question_type {
         return null;
     }
 
-    public function export_to_xml($question, $format, $extra=null) {
+    public function export_to_xml($question, qformat_xml $format, $extra=null) {
         $expout = '';
         $expout .= '    <remoteid>' . $question->options->remoteid . "</remoteid>\n";
         $expout .= '    <remoteversion>' . $question->options->remoteversion . "</remoteversion>\n";
@@ -100,7 +100,7 @@ class qtype_opaque extends question_type {
         return $expout;
     }
 
-    public function import_from_xml($data, $question, $format, $extra = null) {
+    public function import_from_xml($data, $question, qformat_xml $format, $extra = null) {
         if (!isset($data['@']['type']) || $data['@']['type'] != 'opaque') {
             return false;
         }
