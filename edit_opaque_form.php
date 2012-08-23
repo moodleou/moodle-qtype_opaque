@@ -111,6 +111,18 @@ class qtype_opaque_edit_form extends question_edit_form {
         return $errors;
     }
 
+    public function set_data($question) {
+        // This is a nasty hack to prevent problems in the superclass. We don't
+        // use these fields at all, but the parent method blows up if they are empty.
+        if (empty($question->questiontext)) {
+            $question->questiontext = ' ';
+        }
+        if (empty($question->generalfeedback)) {
+            $question->generalfeedback = ' ';
+        }
+        parent::set_data($question);
+    }
+
     public function get_data($slashed = true) {
         // We override get_data to to add the defaultmark, which was determined
         // during validation, to the data that is returned.

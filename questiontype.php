@@ -80,7 +80,7 @@ class qtype_opaque extends question_type {
         return null;
     }
 
-    public function export_to_xml($question, qformat_xml $format, $extra=null) {
+    public function export_to_xml($question, qformat_xml $format, $extra = null) {
         $expout = '';
         $expout .= '    <remoteid>' . $question->options->remoteid . "</remoteid>\n";
         $expout .= '    <remoteversion>' . $question->options->remoteversion . "</remoteversion>\n";

@@ -42,7 +42,13 @@ $delete = optional_param('delete', 0, PARAM_INT);
 if ($delete) {
     $engine = $enginemanager->load($delete);
 
+    if ($DB->record_exists('qtype_opaque_options', array('engineid' => $delete))) {
+        print_error('enginecannotbedeleted', 'qtype_opaque', $CFG->wwwroot . '/question/type/opaque/engines.php');
+    }
+
     if (optional_param('confirm', false, PARAM_BOOL) && confirm_sesskey()) {
+        add_to_log(SITEID, 'qtype_opaque', 'delete engine',
+                'question/type/opaque/engines.php', $engine->name);
         $enginemanager->delete($delete);
         redirect($PAGE->url);
 
@@ -61,6 +67,9 @@ if ($delete) {
 // Get the list of configured engines.
 $engines = $enginemanager->choices();
 
+$questioncounts = $DB->get_records_sql_menu(
+        'SELECT engineid, count(1) FROM {qtype_opaque_options} GROUP BY engineid');
+
 // Header.
 echo $OUTPUT->header();
 echo $OUTPUT->heading_with_help(get_string('configuredquestionengines', 'qtype_opaque'),
@@ -73,16 +82,29 @@ if ($engines) {
     $strdelete = get_string('delete');
 
     foreach ($engines as $id => $name) {
-        echo html_writer::tag('p', format_string($name) .
-                $OUTPUT->action_icon(new moodle_url('/question/type/opaque/testengine.php',
+        echo html_writer::start_tag('p');
+        if (empty($questioncounts[$id])) {
+            echo get_string('enginenotused', 'qtype_opaque',
+                    array('name' => html_writer::tag('b', format_string($name))));
+        } else {
+            echo get_string('engineusedby', 'qtype_opaque',
+                    array('name' => html_writer::tag('b', format_string($name)), 'count' => $questioncounts[$id]));
+        }
+
+        echo ' ' , $OUTPUT->action_icon(new moodle_url('/question/type/opaque/testengine.php',
                         array('engineid' => $id)),
-                        new pix_icon('t/preview', $strtest)) .
-                $OUTPUT->action_icon(new moodle_url('/question/type/opaque/editengine.php',
+                        new pix_icon('t/preview', $strtest));
+
+        echo ' ' , $OUTPUT->action_icon(new moodle_url('/question/type/opaque/editengine.php',
                         array('engineid' => $id)),
-                        new pix_icon('t/edit', $stredit)) .
-                $OUTPUT->action_icon(new moodle_url('/question/type/opaque/engines.php',
-                        array('delete' => $id)),
-                        new pix_icon('t/delete', $strdelete)));
+                        new pix_icon('t/edit', $stredit));
+
+        if (empty($questioncounts[$id])) {
+            echo ' ' , $OUTPUT->action_icon(new moodle_url('/question/type/opaque/engines.php',
+                            array('delete' => $id)),
+                            new pix_icon('t/delete', $strdelete));
+        }
+        echo html_writer::end_tag('p');
     }
 } else {
     echo html_writer::tag('p', get_string('noengines', 'qtype_opaque'));

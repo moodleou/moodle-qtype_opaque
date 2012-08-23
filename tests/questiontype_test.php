@@ -26,6 +26,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+global $CFG;
+require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
 require_once($CFG->libdir . '/xmlize.php');
 require_once($CFG->libdir . '/questionlib.php');
 require_once($CFG->dirroot . '/question/type/opaque/questiontype.php');
@@ -56,7 +58,8 @@ class qtype_opaque_engine_manager_mock extends qtype_opaque_engine_manager {
 
     public function save($engine) {
         $this->knownengines[] = $engine;
-        return end(array_keys($this->knownengines));
+        $keys = array_keys($this->knownengines);
+        return end($keys);
     }
 
     protected function store_opaque_servers($urls, $type, $engineid) {
@@ -80,7 +83,7 @@ class qtype_opaque_engine_manager_mock extends qtype_opaque_engine_manager {
  * @copyright  2010 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class qtype_opaque_test extends UnitTestCase {
+class qtype_opaque_test extends question_testcase {
     protected $qtype;
 
     public function setUp() {
@@ -92,12 +95,12 @@ class qtype_opaque_test extends UnitTestCase {
     }
 
     public function assert_same_xml($expectedxml, $xml) {
-        $this->assertEqual(str_replace("\r\n", "\n", $expectedxml),
+        $this->assertEquals(str_replace("\r\n", "\n", $expectedxml),
                 str_replace("\r\n", "\n", $xml));
     }
 
     public function test_name() {
-        $this->assertEqual($this->qtype->name(), 'opaque');
+        $this->assertEquals($this->qtype->name(), 'opaque');
     }
 
     public function test_can_analyse_responses() {
@@ -109,7 +112,7 @@ class qtype_opaque_test extends UnitTestCase {
     }
 
     public function test_get_possible_responses() {
-        $this->assertEqual(array(), $this->qtype->get_possible_responses(null));
+        $this->assertEquals(array(), $this->qtype->get_possible_responses(null));
     }
 
     public function test_xml_import_known_engine() {
@@ -172,7 +175,7 @@ class qtype_opaque_test extends UnitTestCase {
         $expectedq->remoteversion = '1.0';
         $expectedq->engineid = 123;
 
-        $this->assert(new CheckSpecifiedFieldsExpectation($expectedq), $q);
+        $this->assert(new question_check_specified_fields_expectation($expectedq), $q);
     }
 
     public function test_xml_import_unknown_engine() {
@@ -240,7 +243,7 @@ class qtype_opaque_test extends UnitTestCase {
         $expectedq->remoteversion = '1.0';
         $expectedq->engineid = 0;
 
-        $this->assert(new CheckSpecifiedFieldsExpectation($expectedq), $q);
+        $this->assert(new question_check_specified_fields_expectation($expectedq), $q);
         $this->assertTrue($manager->is_same(
                 $engine, $manager->load($q->engineid)));
     }
@@ -273,6 +276,7 @@ class qtype_opaque_test extends UnitTestCase {
         $qdata->penalty = 0;
         $qdata->hidden = 0;
 
+        $qdata->options = new stdClass();
         $qdata->options->remoteid = 'example.question';
         $qdata->options->remoteversion = '1.0';
         $qdata->options->engineid = 123;

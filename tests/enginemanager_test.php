@@ -26,6 +26,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+global $CFG;
+require_once($CFG->dirroot . '/question/type/opaque/enginemanager.php');
+
 
 /**
  * Unit tests for (some of) ../enginemanager.php.
@@ -33,7 +36,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2008 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class qtype_opaque_engine_manager_test extends UnitTestCase {
+class qtype_opaque_engine_manager_test extends basic_testcase {
     public function test_is_same() {
         $manager = new qtype_opaque_engine_manager();
 

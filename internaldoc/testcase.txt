@@ -129,7 +129,7 @@ EDT11 / admin
   Close the preview window.
 
 EDT12 / admin
-  Create a new Opaque question with 
+  Create a new Opaque question with
       Question name: Editing failure
       Question engine: Test engine
       Question id: metadata.fail
