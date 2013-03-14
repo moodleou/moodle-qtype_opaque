@@ -17,10 +17,9 @@
 /**
  * Unit tests for (some of) ../enginemanager.php.
  *
- * @package    qtype
- * @subpackage opaque
- * @copyright  2008 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   qtype_opaque
+ * @copyright 2008 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 
@@ -33,8 +32,9 @@ require_once($CFG->dirroot . '/question/type/opaque/enginemanager.php');
 /**
  * Unit tests for (some of) ../enginemanager.php.
  *
- * @copyright  2008 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright 2008 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @group qtype_opaque
  */
 class qtype_opaque_engine_manager_test extends basic_testcase {
     public function test_is_same() {

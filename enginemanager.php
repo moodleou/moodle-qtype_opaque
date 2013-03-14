@@ -17,10 +17,9 @@
 /**
  * Defines the qtype_opaque_engine_manager class.
  *
- * @package    qtype
- * @subpackage opaque
- * @copyright  2006 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   qtype_opaque
+ * @copyright 2006 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 
@@ -32,8 +31,8 @@ require_once($CFG->dirroot . '/question/type/opaque/connection.php');
 /**
  * Manages loading and saving question engine definitions to and from the database.
  *
- * @copyright  2010 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright 2010 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class qtype_opaque_engine_manager {
 

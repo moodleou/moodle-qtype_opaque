@@ -17,10 +17,9 @@
 /**
  * Opaque question type upgrade code.
  *
- * @package    qtype
- * @subpackage opaque
- * @copyright  2011 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   qtype_opaque
+ * @copyright 2011 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 
@@ -38,17 +37,17 @@ function xmldb_qtype_opaque_upgrade($oldversion) {
 
     if ($oldversion < 2011092600) {
 
-        // Define field timeout to be added to question_opaque_engines
+        // Define field timeout to be added to question_opaque_engines.
         $table = new xmldb_table('question_opaque_engines');
         $field = new xmldb_field('timeout', XMLDB_TYPE_INTEGER, '10', null,
                 XMLDB_NOTNULL, null, '10', 'passkey');
 
-        // Conditionally launch add field timeout
+        // Conditionally launch add field timeout.
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
 
-        // opaque savepoint reached
+        // Qtype opaque savepoint reached.
         upgrade_plugin_savepoint(true, 2011092600, 'qtype', 'opaque');
     }
 
@@ -60,7 +59,7 @@ function xmldb_qtype_opaque_upgrade($oldversion) {
         // Launch rename table for question_opaque.
         $dbman->rename_table($table, 'qtype_opaque_options');
 
-        // qtype_opaque savepoint reached.
+        // Qtype opaque savepoint reached.
         upgrade_plugin_savepoint(true, 2011102400, 'qtype', 'opaque');
     }
 
@@ -72,7 +71,7 @@ function xmldb_qtype_opaque_upgrade($oldversion) {
         // Launch rename table for question_opaque_engines.
         $dbman->rename_table($table, 'qtype_opaque_engines');
 
-        // qtype_opaque savepoint reached.
+        // Qtype opaque savepoint reached.
         upgrade_plugin_savepoint(true, 2011102401, 'qtype', 'opaque');
     }
 
@@ -84,7 +83,7 @@ function xmldb_qtype_opaque_upgrade($oldversion) {
         // Launch rename table for question_opaque_servers.
         $dbman->rename_table($table, 'qtype_opaque_servers');
 
-        // qtype_opaque savepoint reached.
+        // Qtype opaque savepoint reached.
         upgrade_plugin_savepoint(true, 2011102402, 'qtype', 'opaque');
     }
 

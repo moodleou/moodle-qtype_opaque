@@ -17,10 +17,9 @@
 /**
  * Page for editing the configuration of a particular Opaque engine.
  *
- * @package    qtype
- * @subpackage opaque
- * @copyright  2006 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   qtype_opaque
+ * @copyright 2006 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 

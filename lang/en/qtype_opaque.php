@@ -17,10 +17,9 @@
 /**
  * Strings for component 'qtype_opaque', language 'en', branch 'MOODLE_20_STABLE'
  *
- * @package    qtype
- * @subpackage opaque
- * @copyright  2006 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   qtype_opaque
+ * @copyright 2006 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 $string['accessoutofsequence'] = 'You have accessed this page out of sequence. Please do not use the Back button when attempting questions.';

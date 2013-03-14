@@ -15,10 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package    moodlecore
- * @subpackage backup-moodle2
- * @copyright  2011 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   qtype_opaque
+ * @copyright 2011 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 
@@ -28,11 +27,11 @@ require_once($CFG->dirroot . '/question/type/opaque/enginemanager.php');
 
 
 /**
- * restore plugin class that provides the necessary information
- * needed to restore one ddwtos qtype plugin
+ * Restore plugin class that provides the necessary information
+ * needed to restore one ddwtos qtype plugin.
  *
- * @copyright  2011 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright 2011 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class restore_qtype_opaque_plugin extends restore_qtype_plugin {
     protected $enginemanager = null;
@@ -47,7 +46,7 @@ class restore_qtype_opaque_plugin extends restore_qtype_plugin {
     }
 
     /**
-     * Process the qtype/opaque element
+     * Process the qtype/opaque element.
      */
     public function process_opaque($data) {
         global $DB;
@@ -68,12 +67,13 @@ class restore_qtype_opaque_plugin extends restore_qtype_plugin {
                     'Missing question engine URLs in an Opaque question backup.');
         }
 
-        // Detect if the question is created or mapped
+        // Detect if the question is created or mapped.
         $oldquestionid   = $this->get_old_parentid('question');
         $newquestionid   = $this->get_new_parentid('question');
         $questioncreated = $this->get_mappingid('question_created', $oldquestionid) ? true : false;
 
-        // If the question has been created by restore, we need to create its question_ddwtos too
+        // If the question has been created by restore, we need to create its
+        // question_ddwtos too.
         if ($questioncreated) {
             // New question, insert.
             $question = (object) $data;

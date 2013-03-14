@@ -17,10 +17,9 @@
 /**
  * Defines the editing form for the Opaque question type.
  *
- * @package    qtype
- * @subpackage opaque
- * @copyright  2006 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   qtype_opaque
+ * @copyright 2006 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 
@@ -35,8 +34,8 @@ require_once($CFG->dirroot . '/question/type/opaque/enginemanager.php');
  * class that inherits from this one, and implements the definition_inner()
  * method.
  *
- * @copyright  2006 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright 2006 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class qtype_opaque_edit_form extends question_edit_form {
     protected function definition() {

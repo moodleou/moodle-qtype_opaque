@@ -17,10 +17,9 @@
 /**
  * Defines the qtype_opaque_connection class.
  *
- * @package    qtype
- * @subpackage opaque
- * @copyright  2011 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   qtype_opaque
+ * @copyright 2011 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 
@@ -37,8 +36,8 @@ require_once($CFG->libdir . '/xmlize.php');
  * Wraps the SOAP connection to the question engine, exposing the methods used
  * when handling question and engine metatdata.
  *
- * @copyright  2011 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright 2011 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class qtype_opaque_connection {
 

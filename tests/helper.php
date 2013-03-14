@@ -17,9 +17,9 @@
 /**
  * Test helper code for the Opaque question type.
  *
- * @package    qtype_opaque
- * @copyright  2010 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   qtype_opaque
+ * @copyright 2010 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 
@@ -29,8 +29,8 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * Test helper class for the Opaque question type.
  *
- * @copyright  2010 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright 2010 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class qtype_opaque_test_helper {
     public function get_test_questions() {

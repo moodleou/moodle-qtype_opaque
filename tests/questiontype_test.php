@@ -17,10 +17,9 @@
 /**
  * Unit tests for the opaque question type class.
  *
- * @package    qtype
- * @subpackage opaque
- * @copyright  2010 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   qtype_opaque
+ * @copyright 2010 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 
@@ -37,8 +36,9 @@ require_once($CFG->dirroot . '/question/format/xml/format.php');
 /**
  * Mock {@link qtype_opaque_engine_manager} for use in tests.
  *
- * @copyright  2010 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright 2010 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @group qtype_opaque
  */
 class qtype_opaque_engine_manager_mock extends qtype_opaque_engine_manager {
     protected $knownengines = array();
