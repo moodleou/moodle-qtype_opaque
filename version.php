@@ -17,21 +17,21 @@
 /**
  * Version information for the Opaque question type.
  *
- * @package    qtype_opaque
- * @copyright  2006 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   qtype_opaque
+ * @copyright 2006 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
 
-$plugin->version   = 2012082200;
+$plugin->version   = 2013031400;
 $plugin->requires  = 2012062500;
 $plugin->cron      = 0;
 $plugin->component = 'qtype_opaque';
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '2.1 For Moodle 2.3+';
+$plugin->release   = '2.2 For Moodle 2.3+';
 
 $plugin->dependencies = array(
-    'qbehaviour_opaque' => 2012082200,
+    'qbehaviour_opaque' => 2013031400,
 );
