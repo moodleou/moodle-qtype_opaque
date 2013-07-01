@@ -41,8 +41,7 @@ class qtype_opaque_question extends question_definition {
     public $remoteversion;
 
     public function make_behaviour(question_attempt $qa, $preferredbehaviour) {
-        question_engine::load_behaviour_class('opaque');
-        return new qbehaviour_opaque($qa, $preferredbehaviour);
+        return question_engine::make_behaviour('opaque', $qa, $preferredbehaviour);
     }
 
     public function get_expected_data() {
