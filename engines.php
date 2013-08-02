@@ -29,7 +29,7 @@ require_once($CFG->dirroot . '/question/type/opaque/enginemanager.php');
 
 // Check the user is logged in.
 require_login();
-$context = get_context_instance(CONTEXT_SYSTEM);
+$context = context_system::instance();
 require_capability('moodle/question:config', $context);
 
 admin_externalpage_setup('qtypesettingopaque');
