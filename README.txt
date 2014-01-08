@@ -14,14 +14,15 @@ we don't know about.
 
 
 Opaque has been available since Moodle 1.8, but this version is compatible with
-Moodle 2.5+.
+Moodle 2.6+.
 
 This question behaviour also requires the Opaque question type to be installed.
 
 To install using git, type this command in the root of your Moodle install
-    git clone git://github.com/moodleou/moodle-qtype_opaque.git question/type/opaque
-    git clone git://github.com/moodleou/moodle-qbehaviour_opaque.git question/behaviour/opaque
-Then add question/type/opaque and question/behaviour/opaque to your git ignore.
+    git clone -b MOODLE_25_STABLE git://github.com/moodleou/moodle-qtype_opaque.git question/type/opaque
+    echo '/question/type/opaque/' >> .git/info/exclude
+    git clone -b MOODLE_25_STABLE git://github.com/moodleou/moodle-qbehaviour_opaque.git question/behaviour/opaque
+    echo '/question/behaviour/opaque/' >> .git/info/exclude
 
 Alternatively, download the zip from
     https://github.com/moodleou/moodle-qtype_opaque/zipball/master

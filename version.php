@@ -25,13 +25,13 @@
 defined('MOODLE_INTERNAL') || die();
 
 
-$plugin->version   = 2013070100;
-$plugin->requires  = 2013051400;
+$plugin->version   = 2014010801;
+$plugin->requires  = 2013111800;
 $plugin->cron      = 0;
 $plugin->component = 'qtype_opaque';
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '2.3 For Moodle 2.5+';
+$plugin->release   = '2.4 For Moodle 2.6+';
 
 $plugin->dependencies = array(
-    'qbehaviour_opaque' => 2013070100,
+    'qbehaviour_opaque' => 2014010801,
 );
