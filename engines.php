@@ -46,8 +46,10 @@ if ($delete) {
     }
 
     if (optional_param('confirm', false, PARAM_BOOL) && confirm_sesskey()) {
-        add_to_log(SITEID, 'qtype_opaque', 'delete engine',
-                'question/type/opaque/engines.php', $engine->name);
+        \qtype_opaque\event\engine_deleted::create(array(
+                'objectid' => $engine->id,
+                'context' => $context,
+        ))->trigger();
         $enginemanager->delete($delete);
         redirect($PAGE->url);
 

@@ -57,15 +57,20 @@ if ($mform->is_cancelled()) {
     $engine->questionbanks = $mform->extracturllist($data, 'questionbankurls');
     $engine->timeout = $data->timeout;
 
+    qtype_opaque_engine_manager::get()->save($engine);
+
     if (!empty($data->engineid)) {
-        add_to_log(SITEID, 'qtype_opaque', 'edit engine',
-                'question/type/opaque/engines.php', $data->engineid);
+        \qtype_opaque\event\engine_edited::create(array(
+                    'objectid' => $engine->id,
+                    'context' => $context,
+                ))->trigger();
     } else {
-        add_to_log(SITEID, 'qtype_opaque', 'create engine',
-                'question/type/opaque/engines.php', $engine->name);
+        \qtype_opaque\event\engine_created::create(array(
+                    'objectid' => $engine->id,
+                    'context' => $context,
+                ))->trigger();
     }
 
-    qtype_opaque_engine_manager::get()->save($engine);
     redirect(new moodle_url('/question/type/opaque/engines.php'));
 }
 
