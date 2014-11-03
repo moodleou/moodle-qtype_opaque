@@ -165,7 +165,7 @@ class qtype_opaque_soap_client_with_timeout extends SoapClient {
      * (non-PHPdoc)
      * @see SoapClient::__doRequest()
      */
-    public function __doRequest($request, $location, $action, $version, $one_way = false) {
+    public function __doRequest($request, $location, $action, $version, $oneway = false) {
 
         $headers = $this->headers;
         if ($action) {
@@ -185,7 +185,7 @@ class qtype_opaque_soap_client_with_timeout extends SoapClient {
         }
         curl_close($curl);
 
-        if (!$one_way) {
+        if (!$oneway) {
             return ($response);
         }
     }
