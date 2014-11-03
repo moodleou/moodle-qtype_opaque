@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiz>
+<!-- question: 0  -->
+  <question type="category">
+    <category>
+        <text>Imported questions</text>
+
+    </category>
+  </question>
+
+<!-- question: 1  -->
+  <question type="opaque">
+    <name>
+      <text>Imported Opaque question</text>
+    </name>
+    <questiontext format="moodle_auto_format">
+      <text></text>
+    </questiontext>
+    <generalfeedback format="moodle_auto_format">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>3.0000000</defaultgrade>
+    <penalty>0.0000000</penalty>
+    <hidden>0</hidden>
+    <remoteid>omdemo.text.q01</remoteid>
+    <remoteversion>1.2</remoteversion>
+    <engine>
+      <name>
+        <text>Test OpenMark engine</text>
+      </name>
+      <passkey>
+        <text></text>
+      </passkey>
+      <timeout>10</timeout>
+      <qe>
+        <text>http://example.com/opaque/engine</text>
+      </qe>
+      <qb>
+        <text>http://example.com/opaque/bank</text>
+      </qb>
+    </engine>
+  </question>
+
+</quiz>

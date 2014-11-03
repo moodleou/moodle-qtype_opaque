@@ -25,6 +25,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+require_once(__DIR__ . '/test_engine_configuration.php');
+
 
 /**
  * Test helper class for the Opaque question type.
@@ -46,9 +48,6 @@ class qtype_opaque_test_helper {
         global $DB;
 
         $engineid = $this->get_engine_id();
-        if (!$engineid) {
-            return null;
-        }
 
         question_bank::load_question_definition_classes('opaque');
         $q = new qtype_opaque_question();
@@ -60,29 +59,12 @@ class qtype_opaque_test_helper {
 
         $q->engineid = $engineid;
         $q->remoteid = 'samples.mu120.module5.question01';
-        $q->remoteversion = '1.0';
+        $q->remoteversion = '1.6';
 
         return $q;
     }
 
     protected function get_engine_id() {
-        try {
-            qtype_opaque_engine_manager::get()->load(1);
-            return 1;
-        } catch (moodle_exception $e) {
-            if (!defined('QTYPE_OPAQUE_TEST_ENGINE_QE')) {
-                return null;
-            }
-            $engine = new stdClass();
-            $engine->name = 'Opaque engine for unit tests';
-            $engine->passkey = defined('QTYPE_OPAQUE_TEST_ENGINE_PASSKEY') ? QTYPE_OPAQUE_TEST_ENGINE_PASSKEY : '';
-            $engine->timeout = defined('QTYPE_OPAQUE_TEST_ENGINE_TIMEOUT') ? QTYPE_OPAQUE_TEST_ENGINE_TIMEOUT : 10;
-            $engine->questionengines = array(QTYPE_OPAQUE_TEST_ENGINE_QE);
-            $engine->questionbanks = array();
-            if (defined('QTYPE_OPAQUE_TEST_ENGINE_TN')) {
-                $engine->questionbanks[] = QTYPE_OPAQUE_TEST_ENGINE_TN;
-            }
-            return qtype_opaque_engine_manager::get()->save($engine);
-        }
+        return qtype_opaque_test_config::setup_test_opaque_engine();
     }
 }
