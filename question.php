@@ -32,7 +32,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright 2009 The Open University
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class qtype_opaque_question extends question_definition {
+class qtype_opaque_question extends question_with_responses {
     /** @var integer the ID of the question engine that serves this question. */
     public $engineid;
     /** @var string the id by which the question engine knows this question. */
@@ -51,5 +51,34 @@ class qtype_opaque_question extends question_definition {
     public function get_correct_response() {
         // Not possible to say, so just return nothing.
         return array();
+    }
+
+    public function get_variants_selection_seed() {
+        return "All opaque questions in a usage should get the same variant!";
+    }
+
+    public function get_num_variants() {
+        // Let Moodle generate the random seed for us.
+        return 1000000;
+    }
+
+    public function is_complete_response(array $response) {
+        // Not acutally used by the behaviour.
+        return null;
+    }
+
+    public function is_same_response(array $prevresponse, array $newresponse){
+        // Not acutally used by the behaviour.
+        return null;
+    }
+
+    public function summarise_response(array $response) {
+        ksort($response, SORT_NATURAL);
+
+        $formatteddata = array();
+        foreach ($response as $name => $value) {
+            $formatteddata[] = $name . ' => ' . $value;
+        }
+        return implode(', ', $formatteddata);
     }
 }
