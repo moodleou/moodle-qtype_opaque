@@ -1,8 +1,8 @@
 @ou @ou_vle @qtype @qtype_opaque
-Feature: Test importing Opaque questions.
-  In order use some questions I was given
-  As an teacher
-  I need to import Opaque questions.
+Feature: Import and export Opaque questions
+  As a teacher
+  In order to reuse my Opaque questions
+  I need to be able to import and export them
 
   Background:
     Given the following "courses" exist:
@@ -18,7 +18,7 @@ Feature: Test importing Opaque questions.
     And I follow "Course 1"
 
   @javascript
-  Scenario: import an Opaque question.
+  Scenario: Import and export Opaque questions
     # Import sample file.
     When I navigate to "Import" node in "Course administration > Question bank"
     And I set the field "id_format_xml" to "1"
@@ -28,6 +28,13 @@ Feature: Test importing Opaque questions.
     And I should see "Importing 1 questions from file"
     When I press "Continue"
     Then I should see "Imported Opaque question"
+
+    # Now export again.
+    When I set the field "Select a category" to "Imported questions (1)"
+    And I navigate to "Export" node in "Course administration > Question bank"
+    And I set the field "id_format_xml" to "1"
+    And I press "Export questions to file"
+    Then following "click here" should download between "950" and "1050" bytes
 
     # Verify that the engine definition was imported.
     When I log out
