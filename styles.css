@@ -18,3 +18,14 @@
     text-align: center;
     background: #eeeeee;
 }
+
+/* Override some unwanted bootstrap CSS that happens to match the OpanMark HTML structure. */
+.que.opaque .radio,
+.que.opaque .checkbox {
+    min-height: 0;
+}
+.que.opaque .radio input[type="radio"],
+.que.opaque .checkbox input[type="checkbox"] {
+    float: none;
+    margin: 0 4px 0 0;
+}
