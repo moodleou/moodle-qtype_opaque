@@ -66,8 +66,10 @@ class qtype_opaque_connection {
             $class = 'qtype_opaque_soap_client_with_timeout';
         }
 
-        $this->soapclient = new $class($url . '?wsdl', array(
+        $this->soapclient = new $class(__DIR__ . '/opaque.wsdl', array(
+                    'location'           => $url,
                     'soap_version'       => SOAP_1_1,
+                    'cache_wsdl'         => WSDL_CACHE_NONE,
                     'exceptions'         => true,
                     'connection_timeout' => $engine->timeout,
                     'features'           => SOAP_SINGLE_ELEMENT_ARRAYS,
@@ -139,8 +141,8 @@ class qtype_opaque_soap_client_with_timeout extends SoapClient {
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_POST => true,
         CURLOPT_HEADER => false,
-        CURLOPT_SSL_VERIFYPEER => false,
-        CURLOPT_SSL_VERIFYHOST => false,
+        CURLOPT_SSL_VERIFYHOST => 2,     // This verifies the certificate matches the host.
+        CURLOPT_SSL_VERIFYPEER => false, // We don't verify the certificate authority to allow self-signed.
     );
 
     /** @var array standard HTTP headers to send. */
