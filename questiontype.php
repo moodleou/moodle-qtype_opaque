@@ -38,9 +38,13 @@ class qtype_opaque extends question_type {
     /** @var qtype_opaque_engine_manager */
     protected $enginemanager;
 
+    /** @var javascript_ready */
+    protected $jsready;
+
     public function __construct() {
         parent::__construct();
         $this->enginemanager = qtype_opaque_engine_manager::get();
+        $this->jsready = true;
     }
 
     /**
@@ -69,10 +73,15 @@ class qtype_opaque extends question_type {
     }
 
     protected function initialise_question_instance(question_definition $question, $questiondata) {
+        global $PAGE;
         parent::initialise_question_instance($question, $questiondata);
         $question->engineid = $questiondata->options->engineid;
         $question->remoteid = $questiondata->options->remoteid;
         $question->remoteversion = $questiondata->options->remoteversion;
+        if ($this->jsready) {
+            $this->jsready = false;
+            $PAGE->requires->js_call_amd('qtype_opaque/changefocus', 'init');
+        }
     }
 
     public function get_random_guess_score($questiondata) {

@@ -29,3 +29,8 @@
     float: none;
     margin: 0 4px 0 0;
 }
+
+/* Prevent firefox on window is not showing outline when using .focus(). */
+body.gecko .que.opaque input.questionflagimage:focus {
+    outline: 1px dotted;
+}
