@@ -16,7 +16,7 @@ Feature: Test all the basic functionality of opaque question type
       | teacher | C1     | editingteacher |
     And I set up Opaque using the test configuration
     And I log in as "teacher"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I navigate to "Question bank" node in "Course administration"
 
   @javascript
