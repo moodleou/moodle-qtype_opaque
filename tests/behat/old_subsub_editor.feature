@@ -20,7 +20,7 @@ Feature: Test an Opaque question using the legacy sub-sub editor
     And I navigate to "Question bank" node in "Course administration"
 
   @javascript
-  Scenario: Create, edit then preview an Opaque question.
+  Scenario: Attempt a question that uses the old editor
     # Create a new question.
     And I add a "Opaque" question filling the form with:
       | Question name    | Test Opaque question |
