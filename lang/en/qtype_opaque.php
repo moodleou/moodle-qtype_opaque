@@ -89,3 +89,4 @@ $string['timeoutmustbepositive'] = 'The time-out must be a postive integer.';
 $string['unknownengine'] = 'Unknown engine. {$a}';
 $string['unrecognisedservertype'] = 'Unrecognised server type read from the database.';
 $string['urlsinvalid'] = 'You must enter a list of URLs, one per line.';
+$string['privacy:metadata'] = 'The Opaque plugin does not store any personal data.';
