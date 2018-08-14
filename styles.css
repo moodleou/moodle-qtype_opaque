@@ -10,13 +10,13 @@
 .que .im-controls .opaqueerror {
     color: #800;
     padding: 7em 1em;
-    background: #eeeeee;
+    background: #eee;
 }
 
 .que.opaque .question_aborted {
     padding: 7em 1em;
     text-align: center;
-    background: #eeeeee;
+    background: #eee;
 }
 
 /* Override some unwanted bootstrap CSS that happens to match the OpanMark HTML structure. */

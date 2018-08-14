@@ -17,7 +17,7 @@
  * Privacy Subsystem implementation for qtype_opaque.
  *
  * @package    qtype_opaque
- * @copyright  2018 The Open University 
+ * @copyright  2018 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace qtype_opaque\privacy;
@@ -25,7 +25,7 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * Privacy Subsystem for qtype_opaque implementing null_provider.
  *
- * @copyright  2018 The Open University 
+ * @copyright  2018 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class provider implements \core_privacy\local\metadata\null_provider {

@@ -47,7 +47,7 @@ class behat_qtype_opaque extends behat_base {
      *
      * @When /^I set up Opaque using the test configuration$/
      */
-    public function iSetUpOpaqueUsingTheTestConfiguration() {
+    public function i_set_up_opaque_using_the_test_configuration() {
         // The require_once is here, this file may be required by behat before including /config.php.
         require_once(__DIR__ . '/../test_engine_configuration.php');
 

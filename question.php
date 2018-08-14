@@ -67,7 +67,7 @@ class qtype_opaque_question extends question_with_responses {
         return null;
     }
 
-    public function is_same_response(array $prevresponse, array $newresponse){
+    public function is_same_response(array $prevresponse, array $newresponse) {
         // Not acutally used by the behaviour.
         return null;
     }
