@@ -1,6 +1,11 @@
 # Change log for the The Opaque question type
 
 
+## Changes in 2.7
+
+* Fix automated tests to work with Moodle 3.6.
+
+
 ## Changes in 2.6
 
 * Privacy API implementation.
