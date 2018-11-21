@@ -275,6 +275,7 @@ class qtype_opaque_test extends question_testcase {
         $qdata->length = 1;
         $qdata->penalty = 0;
         $qdata->hidden = 0;
+        $qdata->idnumber = '';
 
         $qdata->options = new stdClass();
         $qdata->options->remoteid = 'example.question';
@@ -298,6 +299,7 @@ class qtype_opaque_test extends question_testcase {
     <defaultgrade>3</defaultgrade>
     <penalty>0</penalty>
     <hidden>0</hidden>
+    <idnumber></idnumber>
     <remoteid>example.question</remoteid>
     <remoteversion>1.0</remoteversion>
     <engine>
@@ -314,6 +316,11 @@ class qtype_opaque_test extends question_testcase {
     </engine>
   </question>
 ';
+
+        // Hack so the test passes in both 3.5 and 3.6.
+        if (strpos($xml, 'idnumber') === false) {
+            $expectedxml = str_replace("    <idnumber></idnumber>\n", '', $expectedxml);
+        }
 
         $this->assert_same_xml($expectedxml, $xml);
     }

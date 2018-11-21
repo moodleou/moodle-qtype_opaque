@@ -10,7 +10,7 @@ Feature: Opaque question type configuration UI
   @javascript
   Scenario: Test the question engine configuration UI.
     # Configure a question engine.
-    And I navigate to "Opaque" node in "Site administration > Plugins > Question types"
+    And I navigate to "Plugins > Question types > Opaque" in site administration
     And I follow "Add another engine"
     And I set the following fields to these values:
       | Engine name          | Example engine                   |

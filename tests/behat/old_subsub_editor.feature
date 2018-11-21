@@ -17,7 +17,7 @@ Feature: Test an Opaque question using the legacy sub-sub editor
     And I set up Opaque using the test configuration
     And I log in as "teacher"
     And I am on "Course 1" course homepage
-    And I navigate to "Question bank" node in "Course administration"
+    And I navigate to "Question bank" in current page administration
 
   @javascript
   Scenario: Attempt a question that uses the old editor

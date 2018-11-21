@@ -17,7 +17,7 @@ Feature: Test all the basic functionality of opaque question type
     And I set up Opaque using the test configuration
     And I log in as "teacher"
     And I am on "Course 1" course homepage
-    And I navigate to "Question bank" node in "Course administration"
+    And I navigate to "Question bank" in current page administration
 
   @javascript
   Scenario: Create, edit then preview an Opaque question.
@@ -56,7 +56,7 @@ Feature: Test all the basic functionality of opaque question type
     When I restore "test_backup.mbz" backup into a new course using this options:
       | Schema | Course name | Course 2 |
     Then I should see "Course 2"
-    When I navigate to "Question bank" node in "Course administration"
+    When I navigate to "Question bank" in current page administration
     Then I should see "Test Opaque question"
 
     # Edit the copy and verify the form field contents.
@@ -71,5 +71,5 @@ Feature: Test all the basic functionality of opaque question type
     Then I should see "Edited question name"
 
     # Verify that the engine definition was reused, not duplicated.
-    When I navigate to "Opaque" node in "Site administration > Plugins > Question types"
+    When I navigate to "Plugins > Question types > Opaque" in site administration
     Then I should see "Opaque engine for tests (Used by 2 questions)"
