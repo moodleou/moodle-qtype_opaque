@@ -29,7 +29,7 @@ Feature: Test all the basic functionality of opaque question type
     Then I should see "Test Opaque question"
 
     # Preview it.
-    When I click on "Preview" "link" in the "Test Opaque question" "table_row"
+    When I choose "Preview" action for "Test Opaque question" in the question bank
     And I switch to "questionpreview" window
     And I set the following fields to these values:
       | Marks | Show mark and max |
@@ -60,7 +60,7 @@ Feature: Test all the basic functionality of opaque question type
     Then I should see "Test Opaque question"
 
     # Edit the copy and verify the form field contents.
-    When I click on "Edit" "link" in the "Test Opaque question" "table_row"
+    When I choose "Edit question" action for "Test Opaque question" in the question bank
     Then the following fields match these values:
       | Question name    | Test Opaque question |
       | Question id      | omdemo.text.q01      |

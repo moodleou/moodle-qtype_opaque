@@ -29,7 +29,7 @@ Feature: Test an Opaque question using the legacy sub-sub editor
     Then I should see "Test Opaque question"
 
     # Preview it.
-    When I click on "Preview" "link" in the "Test Opaque question" "table_row"
+    When I choose "Preview" action for "Test Opaque question" in the question bank
     And I switch to "questionpreview" window
     And I set the following fields to these values:
       | Marks | Show mark and max |
