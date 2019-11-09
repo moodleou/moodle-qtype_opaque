@@ -1,6 +1,12 @@
 # Change log for the The Opaque question type
 
 
+## Changes in 2.8
+
+* Change to prevent Moodle styles interfering with OpenMark questions.
+* Fix automated tests to work with Moodle 3.8.
+
+
 ## Changes in 2.7
 
 * Fix automated tests to work with Moodle 3.6.
