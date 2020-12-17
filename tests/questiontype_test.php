@@ -86,12 +86,8 @@ class qtype_opaque_engine_manager_mock extends qtype_opaque_engine_manager {
 class qtype_opaque_test extends question_testcase {
     protected $qtype;
 
-    public function setUp() {
+    public function setUp(): void {
         $this->qtype = new qtype_opaque();
-    }
-
-    public function tearDown() {
-        $this->qtype = null;
     }
 
     public function assert_same_xml($expectedxml, $xml) {
