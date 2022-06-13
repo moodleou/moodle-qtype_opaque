@@ -96,8 +96,7 @@ class qtype_opaque_edit_form extends question_edit_form {
                 $metadata = $enginemanager->get_connection($engine)->get_question_metadata(
                         $data['remoteid'], $data['remoteversion']);
                 if (isset($metadata['questionmetadata']['#']['scoring'][0]['#']['marks'][0]['#'])) {
-                    $this->_defaultmark = $metadata['questionmetadata']['#']['scoring']
-                            [0]['#']['marks'][0]['#'];
+                    $this->_defaultmark = $metadata['questionmetadata']['#']['scoring'][0]['#']['marks'][0]['#'];
                 } else {
                     $errors['remoteid'] = get_string('maxgradenotreturned');
                 }

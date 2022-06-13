@@ -261,7 +261,7 @@ class qtype_opaque_soap_client_with_logging extends qtype_opaque_soap_client_wit
     }
 
     protected function __log_object($o) { // @codingStandardsIgnoreLine
-        $this->__write_to_log(print_r($o, true));
+        $this->__write_to_log(print_r($o, true)); // phpcs:ignore
     }
 
     protected function __log_rule() { // @codingStandardsIgnoreLine
