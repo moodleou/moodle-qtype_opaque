@@ -22,6 +22,9 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace qtype_opaque;
+
+use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -40,7 +43,7 @@ require_once($CFG->dirroot . '/question/format/xml/format.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @group qtype_opaque
  */
-class qtype_opaque_engine_manager_mock extends qtype_opaque_engine_manager {
+class qtype_opaque_engine_manager_mock extends \qtype_opaque_engine_manager {
     protected $knownengines = array();
 
     public function add_test_engine($id, $engine) {
@@ -51,7 +54,7 @@ class qtype_opaque_engine_manager_mock extends qtype_opaque_engine_manager {
         if (isset($this->knownengines[$engineid])) {
             return $this->knownengines[$engineid];
         } else {
-            throw new dml_missing_record_exception('qtype_opaque_servers',
+            throw new \dml_missing_record_exception('qtype_opaque_servers',
                     '', array('id' => $engineid));
         }
     }
@@ -83,11 +86,11 @@ class qtype_opaque_engine_manager_mock extends qtype_opaque_engine_manager {
  * @copyright  2010 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class qtype_opaque_test extends question_testcase {
+class questiontype_test extends \question_testcase {
     protected $qtype;
 
     public function setUp(): void {
-        $this->qtype = new qtype_opaque();
+        $this->qtype = new \qtype_opaque();
     }
 
     public function assert_same_xml($expectedxml, $xml) {
@@ -115,7 +118,7 @@ class qtype_opaque_test extends question_testcase {
         // This relies on the fact that the question_bank only creates one
         // copy of each question type class.
         $manager = new qtype_opaque_engine_manager_mock();
-        question_bank::get_qtype('opaque')->set_engine_manager($manager);
+        \question_bank::get_qtype('opaque')->set_engine_manager($manager);
 
         $engine = new stdClass();
         $engine->name = 'A question engine';
@@ -153,7 +156,7 @@ class qtype_opaque_test extends question_testcase {
   </question>';
         $xmldata = xmlize($xml);
 
-        $importer = new qformat_xml();
+        $importer = new \qformat_xml();
         $q = $importer->try_importing_using_qtypes(
                 $xmldata['question'], null, null, 'opaque');
 
@@ -171,14 +174,14 @@ class qtype_opaque_test extends question_testcase {
         $expectedq->remoteversion = '1.0';
         $expectedq->engineid = 123;
 
-        $this->assert(new question_check_specified_fields_expectation($expectedq), $q);
+        $this->assert(new \question_check_specified_fields_expectation($expectedq), $q);
     }
 
     public function test_xml_import_unknown_engine() {
         // This relies on the fact that the question_bank only creates one
         // copy of each question type class.
         $manager = new qtype_opaque_engine_manager_mock();
-        question_bank::get_qtype('opaque')->set_engine_manager($manager);
+        \question_bank::get_qtype('opaque')->set_engine_manager($manager);
 
         $engine = new stdClass();
         $engine->name = 'A question engine';
@@ -221,7 +224,7 @@ class qtype_opaque_test extends question_testcase {
   </question>';
         $xmldata = xmlize($xml);
 
-        $importer = new qformat_xml();
+        $importer = new \qformat_xml();
         $q = $importer->try_importing_using_qtypes(
                 $xmldata['question'], null, null, 'opaque');
 
@@ -239,7 +242,7 @@ class qtype_opaque_test extends question_testcase {
         $expectedq->remoteversion = '1.0';
         $expectedq->engineid = 0;
 
-        $this->assert(new question_check_specified_fields_expectation($expectedq), $q);
+        $this->assert(new \question_check_specified_fields_expectation($expectedq), $q);
         $this->assertTrue($manager->is_same(
                 $engine, $manager->load($q->engineid)));
     }
@@ -248,7 +251,7 @@ class qtype_opaque_test extends question_testcase {
         // This relies on the fact that the question_bank only creates one
         // copy of each question type class.
         $manager = new qtype_opaque_engine_manager_mock();
-        question_bank::get_qtype('opaque')->set_engine_manager($manager);
+        \question_bank::get_qtype('opaque')->set_engine_manager($manager);
 
         $engine = new stdClass();
         $engine->name = 'A question engine';
@@ -278,7 +281,7 @@ class qtype_opaque_test extends question_testcase {
         $qdata->options->remoteversion = '1.0';
         $qdata->options->engineid = 123;
 
-        $exporter = new qformat_xml();
+        $exporter = new \qformat_xml();
         $xml = $exporter->writequestion($qdata);
 
         $expectedxml = '<!-- question: 321  -->

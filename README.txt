@@ -22,9 +22,9 @@ https://moodle.org/plugins/qbehaviour_opaque
 You can install from the Moodle plugins database using the links above.
 Or to install using git, type this command in the root of your Moodle install
 
-    git clone git://github.com/moodleou/moodle-qtype_opaque.git question/type/opaque
+    git clone https://github.com/moodleou/moodle-qtype_opaque.git question/type/opaque
     echo '/question/type/opaque/' >> .git/info/exclude
-    git clone git://github.com/moodleou/moodle-qbehaviour_opaque.git question/behaviour/opaque
+    git clone https://github.com/moodleou/moodle-qbehaviour_opaque.git question/behaviour/opaque
     echo '/question/behaviour/opaque/' >> .git/info/exclude
 
 Once installed you need to go to the question type settings page

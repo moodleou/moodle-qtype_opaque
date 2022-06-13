@@ -18,6 +18,8 @@ namespace qtype_opaque;
 
 use local_systemcheck\remote_check_result;
 
+defined('MOODLE_INTERNAL') || die();
+
 require_once($CFG->dirroot . '/question/type/opaque/enginemanager.php');
 
 /**

@@ -42,7 +42,7 @@ if ($delete) {
     $engine = $enginemanager->load($delete);
 
     if ($DB->record_exists('qtype_opaque_options', array('engineid' => $delete))) {
-        print_error('enginecannotbedeleted', 'qtype_opaque', $CFG->wwwroot . '/question/type/opaque/engines.php');
+        throw new moodle_exception('enginecannotbedeleted', 'qtype_opaque', $CFG->wwwroot . '/question/type/opaque/engines.php');
     }
 
     if (optional_param('confirm', false, PARAM_BOOL) && confirm_sesskey()) {
